@@ -7,6 +7,7 @@ import com.eojeda89.decididorapi.domain.model.*;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class DecisionPersistenceMapper {
         e.setAlgorithmType(decision.getAlgorithmType());
         e.setDetallesAlgoritmo(toMap(decision.getAlgorithmDetails()));
         if (decision.getCreatedAt() != null) {
-            e.setFechaDecision(new Date(decision.getCreatedAt().toEpochMilli()));
+            e.setFechaDecision(Date.valueOf(decision.getCreatedAt().atZone(ZoneOffset.UTC).toLocalDate()));
         }
         List<OptionEntity> optionEntities = toEntityOptions(decision.getOptions(), e);
         e.setOptions(optionEntities);
@@ -38,7 +39,7 @@ public class DecisionPersistenceMapper {
         d.setAlgorithmType(entity.getAlgorithmType());
         d.setAlgorithmDetails(AlgorithmDetails.of(entity.getDetallesAlgoritmo()));
         if (entity.getFechaDecision() != null) {
-            d.setCreatedAt(entity.getFechaDecision().toInstant());
+            d.setCreatedAt(entity.getFechaDecision().toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant());
         }
         d.setWinningOptionId(toOptionId(entity.getWinningOptionId()));
         d.setOptions(toDomainOptions(entity.getOptions()));

@@ -4,15 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum AlgorithmType {
-    CARRERA_HILOS("carrera-hilos"),
-    LANZAMIENTO_DADO("lanzamiento-dado"),
-    RULETA_FORTUNA("ruleta-fortuna"),
-    PONDERADO_ALEATORIO("ponderado-aleatorio");
+    THREAD_RACE("thread-race"),
+    DICE_ROLL("dice-roll"),
+    FORTUNE_WHEEL("fortune-wheel"),
+    RANDOM_WEIGHTED("random-weighted");
 
-    private final String nombre;
+    private final String code;
 
-    AlgorithmType(String nombre) {
-        this.nombre = nombre;
+    AlgorithmType(String code) {
+        this.code = code;
     }
 
 }

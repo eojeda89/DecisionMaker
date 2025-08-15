@@ -7,7 +7,7 @@ package com.eojeda89.decididorapi.domain.model;
 public record UserId(Long value) {
     public UserId {
         if (value != null && value <= 0) {
-            throw new IllegalArgumentException("UserId debe ser positivo si se proporciona");
+            throw new IllegalArgumentException("UserId must be positive if provided");
         }
     }
 

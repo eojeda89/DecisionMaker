@@ -25,14 +25,14 @@ public class DecisionService implements MakeDecisionUseCase, GetDecisionHistoryU
     public DecisionResult decide(DecideCommand command) {
         Objects.requireNonNull(command, "command");
         if (command.getOptionValues() == null || command.getOptionValues().size() < 2) {
-            throw new IllegalArgumentException("Debe proveer al menos 2 opciones");
+            throw new com.eojeda89.decididorapi.common.exception.Exceptions.InvalidRequestException("At least 2 options are required");
         }
         if (command.getAlgorithmType() == null) {
-            throw new IllegalArgumentException("algorithmType es requerido");
+            throw new com.eojeda89.decididorapi.common.exception.Exceptions.InvalidRequestException("algorithmType is required");
         }
         DecisionAlgorithm algorithm = algorithms.get(command.getAlgorithmType());
         if (algorithm == null) {
-            throw new IllegalArgumentException("Algoritmo no soportado: " + command.getAlgorithmType());
+            throw new com.eojeda89.decididorapi.common.exception.Exceptions.UnsupportedAlgorithmException("Unsupported algorithm: " + command.getAlgorithmType());
         }
 
         // Construir opciones de dominio (ids aún no asignadas)
@@ -51,7 +51,7 @@ public class DecisionService implements MakeDecisionUseCase, GetDecisionHistoryU
         // Elegir ganador por índice (sin depender de ids aún)
         int winnerIndex = algorithm.chooseWinnerIndex(options, command.getAlgorithmDetails());
         if (winnerIndex < 0 || winnerIndex >= options.size()) {
-            throw new IllegalStateException("El algoritmo produjo un índice fuera de rango");
+            throw new com.eojeda89.decididorapi.common.exception.Exceptions.DomainValidationException("Algorithm produced an out-of-range index");
         }
 
         // Persistir para obtener ids

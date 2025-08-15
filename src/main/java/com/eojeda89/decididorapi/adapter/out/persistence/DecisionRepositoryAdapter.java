@@ -20,6 +20,9 @@ public class DecisionRepositoryAdapter implements DecisionRepository {
 
     @Override
     public Decision save(Decision decision) {
+        if (decision == null) {
+            throw new NullPointerException("Decision cannot be null");
+        }
         DecisionEntity entity = mapper.toEntity(decision);
         DecisionEntity saved = jpaRepository.save(entity);
         return mapper.toDomain(saved);

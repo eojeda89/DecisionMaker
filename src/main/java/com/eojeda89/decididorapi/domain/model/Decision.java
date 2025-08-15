@@ -1,6 +1,8 @@
 package com.eojeda89.decididorapi.domain.model;
 
+import com.eojeda89.decididorapi.common.exception.Exceptions;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Decision {
     private DecisionId id;
     private User user;
@@ -22,7 +25,7 @@ public class Decision {
 
     public void addOption(Option option) {
         if (option == null) {
-            throw new com.eojeda89.decididorapi.common.exception.Exceptions.DomainValidationException("option must not be null");
+            throw new Exceptions.DomainValidationException("option must not be null");
         }
         if (this.options == null) {
             this.options = new java.util.ArrayList<>();
@@ -33,7 +36,7 @@ public class Decision {
                     .filter(java.util.Objects::nonNull)
                     .anyMatch(o -> o.getId() != null && o.getId().isAssigned() && o.getId().equals(option.getId()));
             if (exists) {
-                throw new com.eojeda89.decididorapi.common.exception.Exceptions.ConflictException("An option with the same id already exists: " + option.getId());
+                throw new Exceptions.ConflictException("An option with the same id already exists: " + option.getId());
             }
         }
         this.options.add(option);
@@ -41,7 +44,7 @@ public class Decision {
 
     public boolean removeOptionById(OptionId optionId) {
         if (optionId == null || !optionId.isAssigned()) {
-            throw new com.eojeda89.decididorapi.common.exception.Exceptions.DomainValidationException("invalid optionId");
+            throw new Exceptions.DomainValidationException("invalid optionId");
         }
         if (this.options == null || this.options.isEmpty()) return false;
         boolean removed = this.options.removeIf(o -> o != null && o.getId() != null && optionId.equals(o.getId()));
@@ -54,16 +57,16 @@ public class Decision {
 
     public void selectWinner(OptionId optionId) {
         if (optionId == null || !optionId.isAssigned()) {
-            throw new com.eojeda89.decididorapi.common.exception.Exceptions.DomainValidationException("invalid optionId to select winner");
+            throw new Exceptions.DomainValidationException("invalid optionId to select winner");
         }
         if (this.options == null || this.options.isEmpty()) {
-            throw new com.eojeda89.decididorapi.common.exception.Exceptions.DomainValidationException("no options to select a winner from");
+            throw new Exceptions.DomainValidationException("no options to select a winner from");
         }
         boolean exists = this.options.stream()
                 .filter(java.util.Objects::nonNull)
                 .anyMatch(o -> o.getId() != null && optionId.equals(o.getId()));
         if (!exists) {
-            throw new com.eojeda89.decididorapi.common.exception.Exceptions.DomainValidationException("selected option does not belong to this decision");
+            throw new Exceptions.DomainValidationException("selected option does not belong to this decision");
         }
         this.winningOptionId = optionId;
     }

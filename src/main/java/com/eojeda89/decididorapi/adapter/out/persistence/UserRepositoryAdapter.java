@@ -29,5 +29,10 @@ public class UserRepositoryAdapter implements UserRepository {
     public Optional<User> findByEmail(String email) { return jpa.findByEmail(email).map(mapper::toDomain); }
 
     @Override
-    public User save(User user) { return mapper.toDomain(jpa.save(mapper.toEntity(user))); }
+    public User save(User user) {
+        if (user == null) {
+            throw new NullPointerException("User cannot be null");
+        }
+        return mapper.toDomain(jpa.save(mapper.toEntity(user)));
+    }
 }

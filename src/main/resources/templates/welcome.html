@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Bienvenido</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+</head>
+<body>
+<div class="container">
+    <div th:if="${username}">
+        <h1>¡Bienvenido, <span th:text="${username}"></span>!</h1>
+        <p>Estás en tu página principal. ¡Listo para tomar una decisión!</p>
+
+        <a th:href="@{/form}" style="display: block; margin-top: 20px;">Ir al formulario de decisión</a>
+
+        <a th:href="@{/logout}">Cerrar Sesión</a>
+    </div>
+
+    <div th:unless="${username}">
+        <p>No estás autenticado.</p>
+        <a th:href="@{/login}">Ir a Iniciar Sesión</a>
+    </div>
+</div>
+</body>
+</html>

@@ -70,4 +70,15 @@ public class Decision {
         }
         this.winningOptionId = optionId;
     }
+
+    public String getWinningOptionValue() {
+        if (this.winningOptionId == null || !this.winningOptionId.isAssigned()) {
+            return null; // No winner selected
+        }
+        return this.options.stream()
+                .filter(o -> o != null && o.getId() != null && o.getId().equals(this.winningOptionId))
+                .map(Option::getValue)
+                .findFirst()
+                .orElse(null);
+    }
 }

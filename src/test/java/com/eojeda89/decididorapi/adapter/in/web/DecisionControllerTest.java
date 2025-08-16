@@ -49,14 +49,14 @@ class DecisionControllerTest {
 
     @Test
     void makeDecision_HappyPath() {
-        DecisionResult result = new DecisionResult(
-                DecisionId.of(10L),
-                OptionId.of(100L),
-                List.of(new Option(OptionId.of(100L), "A"), new Option(OptionId.of(101L), "B")),
-                AlgorithmType.THREAD_RACE,
-                AlgorithmDetails.of(Map.of("seed", 42)),
-                Instant.now()
-        );
+        DecisionResult result = DecisionResult.builder()
+                .decisionId(DecisionId.of(10L))
+                .winningOptionId(OptionId.of(100L))
+                .options(List.of(new Option(OptionId.of(100L), "A"), new Option(OptionId.of(101L), "B")))
+                .algorithmType(AlgorithmType.THREAD_RACE)
+                .algorithmDetails(AlgorithmDetails.of(Map.of("seed", 42)))
+                .createdAt(Instant.now())
+                .build();
         when(makeDecisionUseCase.decide(any(DecideCommand.class))).thenReturn(result);
 
         MakeDecisionResponse response = controller.makeDecision(validRequest);

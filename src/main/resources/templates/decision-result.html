@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado de la Decisión</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+</head>
+<body>
+<div class="container">
+    <h1>¡El Destino ha Hablado!</h1>
+
+    <div th:if="${decisionResult}">
+        <p>El algoritmo elegido fue: <span th:text="${decisionResult.algorithmType}"></span></p>
+        <p>La opción ganadora es: <strong><span th:text="${decisionResult.winningOptionValue}"></span></strong></p>
+
+        <!-- Opcional: mostrar detalles adicionales del algoritmo -->
+        <h3>Detalles de la Decisión:</h3>
+        <ul>
+            <li th:each="detalle : ${decisionResult.algorithmDetails}">
+                <span></span>
+            </li>
+        </ul>
+    </div>
+
+    <a href="/form">Volver a Decidir</a>
+</div>
+</body>
+</html>

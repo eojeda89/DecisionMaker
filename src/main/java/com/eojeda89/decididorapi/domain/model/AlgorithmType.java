@@ -15,4 +15,12 @@ public enum AlgorithmType {
         this.code = code;
     }
 
+    public static AlgorithmType fromCode(String code) {
+        for (AlgorithmType type : values()) {
+            if (type.getCode().equals(code)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown algorithm type: " + code);
+    }
 }

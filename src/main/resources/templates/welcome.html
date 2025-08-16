@@ -7,7 +7,7 @@
 <body>
 <div class="container">
     <div th:if="${username}">
-        <h1>¡Bienvenido, <span th:text="${username}"></span>!</h1>
+        <h1>¡Bienvenido,<span th:text="${username}"></span> !</h1>
         <p>Estás en tu página principal. ¡Listo para tomar una decisión!</p>
 
         <a th:href="@{/form}" style="display: block; margin-top: 20px;">Ir al formulario de decisión</a>

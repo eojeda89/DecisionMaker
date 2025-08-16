@@ -14,26 +14,26 @@
         <div id="opciones-container">
             <h2>Deja que el destino decida por tí.</h2>
             <div>
-                <label for="opcion1">Opción 1:</label>
-                <input type="text" id="opcion1" name="opciones">
+                <label for="option1">Opción 1:</label>
+                <input type="text" id="option1" name="options">
             </div>
             <div>
-                <label for="opcion2">Opción 2:</label>
-                <input type="text" id="opcion2" name="opciones">
+                <label for="option2">Opción 2:</label>
+                <input type="text" id="option2" name="options">
             </div>
         </div>
 
         <div>
-            <button type="button" id="agregar-opcion">Agregar otra opción</button>
+            <button type="button" id="add-option">Agregar otra opción</button>
         </div>
 
         <div>
-            <label for="algoritmo">Elige un Algoritmo:</label>
-            <select id="algoritmo" name="algoritmo">
+            <label for="algorithm">Elige un Algoritmo:</label>
+            <select id="algorithm" name="algorithm">
                 <!-- Iteramos sobre la lista de algoritmos -->
-                <option th:each="algoritmo : ${algorithms}"
-                        th:value="${algoritmo.code}"
-                        th:text="${algoritmo}">
+                <option th:each="algorithm : ${algorithms}"
+                        th:value="${algorithm.code}"
+                        th:text="${algorithm}">
                 </option>
             </select>
         </div>

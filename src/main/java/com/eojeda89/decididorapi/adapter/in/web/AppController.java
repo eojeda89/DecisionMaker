@@ -58,8 +58,8 @@ public class AppController {
 
     @PostMapping("/decide")
     public String makeDecision(
-            @RequestParam("opciones") List<String> opciones,
-            @RequestParam("algoritmo") String algoritmo,
+            @RequestParam("options") List<String> opciones,
+            @RequestParam("algorithm") String algoritmo,
             Model model) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new Exceptions.ResourceNotFoundException("User not found"));
@@ -79,7 +79,8 @@ public class AppController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@RequestParam String username, @RequestParam String password,
+    public String registerUser(@RequestParam String username,
+                               @RequestParam String password,
                                @RequestParam String email) {
         RegisterUserCommand command = RegisterUserCommand.builder()
                 .username(username)

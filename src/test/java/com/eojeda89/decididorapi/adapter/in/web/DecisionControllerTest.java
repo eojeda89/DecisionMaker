@@ -1,5 +1,7 @@
 package com.eojeda89.decididorapi.adapter.in.web;
 
+import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionRequest;
+import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionResponse;
 import com.eojeda89.decididorapi.application.port.in.GetDecisionHistoryUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.command.DecideCommand;
@@ -10,12 +12,14 @@ import com.eojeda89.decididorapi.domain.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.springframework.validation.BindException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,11 +35,11 @@ class DecisionControllerTest {
     @InjectMocks
     private DecisionController controller;
 
-    private DecisionController.MakeDecisionRequest validRequest;
+    private MakeDecisionRequest validRequest;
 
     @BeforeEach
     void setUp() {
-        validRequest = new DecisionController.MakeDecisionRequest(
+        validRequest = new MakeDecisionRequest(
                 1L,
                 "THREAD_RACE",
                 Map.of("seed", 42),
@@ -55,7 +59,7 @@ class DecisionControllerTest {
         );
         when(makeDecisionUseCase.decide(any(DecideCommand.class))).thenReturn(result);
 
-        DecisionController.MakeDecisionResponse response = controller.makeDecision(validRequest);
+        MakeDecisionResponse response = controller.makeDecision(validRequest);
 
         assertNotNull(response);
         assertEquals(10L, response.getDecisionId());
@@ -112,10 +116,10 @@ class DecisionControllerTest {
                 );
         when(getDecisionHistoryUseCase.listByUser(UserId.of(1L))).thenReturn(decisions);
 
-        List<DecisionController.MakeDecisionResponse> responses = controller.listByUser(1L);
+        List<MakeDecisionResponse> responses = controller.listByUser(1L);
 
         assertEquals(1, responses.size());
-        assertEquals(1L, responses.get(0).getDecisionId());
+        assertEquals(1L, responses.getFirst().getDecisionId());
         verify(getDecisionHistoryUseCase, times(1)).listByUser(UserId.of(1L));
     }
 
@@ -123,7 +127,7 @@ class DecisionControllerTest {
     void listByUser_EmptyList() {
         when(getDecisionHistoryUseCase.listByUser(UserId.of(2L))).thenReturn(Collections.emptyList());
 
-        List<DecisionController.MakeDecisionResponse> responses = controller.listByUser(2L);
+        List<MakeDecisionResponse> responses = controller.listByUser(2L);
 
         assertTrue(responses.isEmpty());
     }

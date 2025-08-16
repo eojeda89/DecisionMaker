@@ -7,10 +7,9 @@ import com.eojeda89.decididorapi.common.exception.Exceptions;
 import com.eojeda89.decididorapi.domain.model.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

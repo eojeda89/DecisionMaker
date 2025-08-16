@@ -7,12 +7,13 @@ import com.eojeda89.decididorapi.domain.model.UserId;
 import com.eojeda89.decididorapi.security.jwt.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)

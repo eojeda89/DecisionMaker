@@ -2,7 +2,6 @@ package com.eojeda89.decididorapi.security.jwt;
 
 import com.eojeda89.decididorapi.application.port.out.UserRepository;
 import com.eojeda89.decididorapi.domain.model.User;
-import com.eojeda89.decididorapi.security.jwt.JwtAuthFilter;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

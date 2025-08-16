@@ -7,12 +7,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Value Object para encapsular los detalles de configuración del algoritmo.
- *
- * Inmutable y con acceso tipado. Puedes extender validate() para
- * reglas específicas según AlgorithmType en capas superiores si lo necesitas.
- */
 @Getter
 @EqualsAndHashCode
 public final class AlgorithmDetails {
@@ -43,6 +37,16 @@ public final class AlgorithmDetails {
     }
 
     private void validate() {
-        // TODO: Agrega validaciones de claves/valores requeridos si aplica.
+        if (properties == null) {
+            throw new IllegalArgumentException("Properties map cannot be null");
+        }
+        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+            if (entry.getKey() == null || entry.getKey().isEmpty()) {
+                throw new IllegalArgumentException("Property key cannot be null or empty");
+            }
+            if (entry.getValue() == null) {
+                throw new IllegalArgumentException("Property value for key '" + entry.getKey() + "' cannot be null");
+            }
+        }
     }
 }

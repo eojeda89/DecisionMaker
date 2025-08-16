@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Date;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -48,18 +49,18 @@ public class DecisionPersistenceMapper {
 
     private UserEntity toEntity(User user) {
         if (user == null) return null;
-        UserEntity u = new UserEntity();
-        u.setId(toLong(user.getId()));
-        u.setUsername(user.getUsername());
-        u.setEmail(user.getEmail());
-        u.setPassword(user.getPassword());
+        UserEntity ue = new UserEntity();
+        ue.setId(toLong(user.getId()));
+        ue.setUsername(user.getUsername());
+        ue.setEmail(user.getEmail());
+        ue.setPassword(user.getPassword());
         if (user.getCreatedAt() != null) {
-            u.setCreatedAt(java.util.Date.from(user.getCreatedAt()));
+            ue.setCreatedAt(java.util.Date.from(user.getCreatedAt()));
         }
         if (user.getUpdatedAt() != null) {
-            u.setUpdatedAt(java.util.Date.from(user.getUpdatedAt()));
+            ue.setUpdatedAt(java.util.Date.from(user.getUpdatedAt()));
         }
-        return u;
+        return ue;
     }
 
     private User toDomain(UserEntity entity) {
@@ -79,7 +80,7 @@ public class DecisionPersistenceMapper {
     }
 
     private List<OptionEntity> toEntityOptions(List<Option> options, DecisionEntity parent) {
-        if (options == null) return null;
+        if (options == null) return Collections.emptyList();
         List<OptionEntity> list = new ArrayList<>(options.size());
         for (Option o : options) {
             if (o == null) continue;
@@ -93,7 +94,7 @@ public class DecisionPersistenceMapper {
     }
 
     private List<Option> toDomainOptions(List<OptionEntity> entities) {
-        if (entities == null) return null;
+        if (entities == null) return Collections.emptyList();
         List<Option> list = new ArrayList<>(entities.size());
         for (OptionEntity e : entities) {
             if (e == null) continue;

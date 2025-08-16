@@ -24,7 +24,7 @@ class DecisionTest {
 
         assertNotNull(decision.getOptions());
         assertEquals(1, decision.getOptions().size());
-        assertSame(option, decision.getOptions().get(0));
+        assertSame(option, decision.getOptions().getFirst());
     }
 
     @Test

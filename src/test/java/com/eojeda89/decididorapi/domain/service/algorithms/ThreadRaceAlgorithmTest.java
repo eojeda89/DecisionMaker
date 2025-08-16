@@ -3,7 +3,6 @@ package com.eojeda89.decididorapi.domain.service.algorithms;
 import com.eojeda89.decididorapi.common.exception.Exceptions;
 import com.eojeda89.decididorapi.domain.model.AlgorithmDetails;
 import com.eojeda89.decididorapi.domain.model.Option;
-import com.eojeda89.decididorapi.domain.service.algorithms.ThreadRaceAlgorithm;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,7 +31,8 @@ class ThreadRaceAlgorithmTest {
 
     @Test
     void chooseWinnerIndex_OptionsIsNull_ThrowsException() {
-        assertThrows(NullPointerException.class, () -> algorithm.chooseWinnerIndex(null, AlgorithmDetails.of(null)));
+        AlgorithmDetails details = AlgorithmDetails.of(null);
+        assertThrows(NullPointerException.class, () -> algorithm.chooseWinnerIndex(null, details));
     }
 
     @Test

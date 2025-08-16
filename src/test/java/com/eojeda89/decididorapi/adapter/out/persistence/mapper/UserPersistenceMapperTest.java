@@ -1,7 +1,6 @@
 package com.eojeda89.decididorapi.adapter.out.persistence.mapper;
 
 import com.eojeda89.decididorapi.adapter.out.persistence.UserEntity;
-import com.eojeda89.decididorapi.adapter.out.persistence.mapper.UserPersistenceMapper;
 import com.eojeda89.decididorapi.domain.model.User;
 import com.eojeda89.decididorapi.domain.model.UserId;
 import org.junit.jupiter.api.Test;

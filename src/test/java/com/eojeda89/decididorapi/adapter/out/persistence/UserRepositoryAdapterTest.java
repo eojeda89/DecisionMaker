@@ -1,7 +1,5 @@
 package com.eojeda89.decididorapi.adapter.out.persistence;
 
-import com.eojeda89.decididorapi.adapter.out.persistence.UserEntity;
-import com.eojeda89.decididorapi.adapter.out.persistence.UserRepositoryAdapter;
 import com.eojeda89.decididorapi.adapter.out.persistence.mapper.UserPersistenceMapper;
 import com.eojeda89.decididorapi.adapter.out.persistence.repository.UserJpaRepository;
 import com.eojeda89.decididorapi.domain.model.User;
@@ -18,6 +16,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
 class UserRepositoryAdapterTest {
 
+    private static final String USERNAME = "user";
+    private static final String NO_USERNAME = "noUser";
+    private static final String EMAIL = "mail@mail.com";
+    private static final String NO_EMAIL = "no@mail.com";
+
     @Mock
     private UserJpaRepository jpa;
     @Mock
@@ -28,16 +31,16 @@ class UserRepositoryAdapterTest {
 
     @Test
     void existsByUsername_HappyPath_True() {
-        when(jpa.existsByUsername("user")).thenReturn(true);
-        assertTrue(adapter.existsByUsername("user"));
-        verify(jpa).existsByUsername("user");
+        when(jpa.existsByUsername(USERNAME)).thenReturn(true);
+        assertTrue(adapter.existsByUsername(USERNAME));
+        verify(jpa).existsByUsername(USERNAME);
     }
 
     @Test
     void existsByUsername_HappyPath_False() {
-        when(jpa.existsByUsername("nouser")).thenReturn(false);
-        assertFalse(adapter.existsByUsername("nouser"));
-        verify(jpa).existsByUsername("nouser");
+        when(jpa.existsByUsername(NO_USERNAME)).thenReturn(false);
+        assertFalse(adapter.existsByUsername(NO_USERNAME));
+        verify(jpa).existsByUsername(NO_USERNAME);
     }
 
     @Test
@@ -49,16 +52,16 @@ class UserRepositoryAdapterTest {
 
     @Test
     void existsByEmail_HappyPath_True() {
-        when(jpa.existsByEmail("mail@mail.com")).thenReturn(true);
-        assertTrue(adapter.existsByEmail("mail@mail.com"));
-        verify(jpa).existsByEmail("mail@mail.com");
+        when(jpa.existsByEmail(EMAIL)).thenReturn(true);
+        assertTrue(adapter.existsByEmail(EMAIL));
+        verify(jpa).existsByEmail(EMAIL);
     }
 
     @Test
     void existsByEmail_HappyPath_False() {
-        when(jpa.existsByEmail("no@mail.com")).thenReturn(false);
-        assertFalse(adapter.existsByEmail("no@mail.com"));
-        verify(jpa).existsByEmail("no@mail.com");
+        when(jpa.existsByEmail(NO_EMAIL)).thenReturn(false);
+        assertFalse(adapter.existsByEmail(NO_EMAIL));
+        verify(jpa).existsByEmail(NO_EMAIL);
     }
 
     @Test
@@ -72,23 +75,23 @@ class UserRepositoryAdapterTest {
     void findByUsername_HappyPath() {
         UserEntity entity = mock(UserEntity.class);
         User user = mock(User.class);
-        when(jpa.findByUsername("user")).thenReturn(Optional.of(entity));
+        when(jpa.findByUsername(USERNAME)).thenReturn(Optional.of(entity));
         when(mapper.toDomain(entity)).thenReturn(user);
 
-        Optional<User> result = adapter.findByUsername("user");
+        Optional<User> result = adapter.findByUsername(USERNAME);
 
         assertTrue(result.isPresent());
         assertEquals(user, result.get());
-        verify(jpa).findByUsername("user");
+        verify(jpa).findByUsername(USERNAME);
         verify(mapper).toDomain(entity);
     }
 
     @Test
     void findByUsername_NotFound() {
-        when(jpa.findByUsername("nouser")).thenReturn(Optional.empty());
-        Optional<User> result = adapter.findByUsername("nouser");
+        when(jpa.findByUsername(NO_USERNAME)).thenReturn(Optional.empty());
+        Optional<User> result = adapter.findByUsername(NO_USERNAME);
         assertTrue(result.isEmpty());
-        verify(jpa).findByUsername("nouser");
+        verify(jpa).findByUsername(NO_USERNAME);
         verifyNoInteractions(mapper);
     }
 
@@ -105,23 +108,23 @@ class UserRepositoryAdapterTest {
     void findByEmail_HappyPath() {
         UserEntity entity = mock(UserEntity.class);
         User user = mock(User.class);
-        when(jpa.findByEmail("mail@mail.com")).thenReturn(Optional.of(entity));
+        when(jpa.findByEmail(EMAIL)).thenReturn(Optional.of(entity));
         when(mapper.toDomain(entity)).thenReturn(user);
 
-        Optional<User> result = adapter.findByEmail("mail@mail.com");
+        Optional<User> result = adapter.findByEmail(EMAIL);
 
         assertTrue(result.isPresent());
         assertEquals(user, result.get());
-        verify(jpa).findByEmail("mail@mail.com");
+        verify(jpa).findByEmail(EMAIL);
         verify(mapper).toDomain(entity);
     }
 
     @Test
     void findByEmail_NotFound() {
-        when(jpa.findByEmail("no@mail.com")).thenReturn(Optional.empty());
-        Optional<User> result = adapter.findByEmail("no@mail.com");
+        when(jpa.findByEmail(NO_EMAIL)).thenReturn(Optional.empty());
+        Optional<User> result = adapter.findByEmail(NO_EMAIL);
         assertTrue(result.isEmpty());
-        verify(jpa).findByEmail("no@mail.com");
+        verify(jpa).findByEmail(NO_EMAIL);
         verifyNoInteractions(mapper);
     }
 

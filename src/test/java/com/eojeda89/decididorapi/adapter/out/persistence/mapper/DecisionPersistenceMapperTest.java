@@ -10,8 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Date;
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,7 +71,8 @@ class DecisionPersistenceMapperTest {
         assertNull(entity.getAlgorithmType());
         assertNull(entity.getDetallesAlgoritmo());
         assertNull(entity.getFechaDecision());
-        assertNull(entity.getOptions());
+        assertNotNull(entity.getOptions());
+        assertTrue(entity.getOptions().isEmpty());
         assertNull(entity.getWinningOptionId());
     }
 
@@ -130,7 +131,8 @@ class DecisionPersistenceMapperTest {
         assertNull(decision.getAlgorithmType());
         assertNotNull(decision.getAlgorithmDetails());
         assertNull(decision.getCreatedAt());
-        assertNull(decision.getOptions());
+        assertNotNull(decision.getOptions());
+        assertTrue(decision.getOptions().isEmpty());
         assertNull(decision.getWinningOptionId());
     }
 }

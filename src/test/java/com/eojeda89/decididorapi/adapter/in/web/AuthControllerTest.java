@@ -6,10 +6,9 @@ import com.eojeda89.decididorapi.application.port.in.result.UserSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class AuthControllerTest {
@@ -33,7 +32,7 @@ class AuthControllerTest {
 
         ResponseEntity<UserSummary> response = authController.register(command);
 
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         assertEquals(expectedUser, response.getBody());
         verify(registerUserUseCase, times(1)).register(command);
     }

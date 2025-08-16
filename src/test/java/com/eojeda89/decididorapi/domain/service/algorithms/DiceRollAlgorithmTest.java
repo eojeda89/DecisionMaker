@@ -29,7 +29,8 @@ class DiceRollAlgorithmTest {
 
     @Test
     void chooseWinnerIndex_OptionsIsNull_ThrowsException() {
-        assertThrows(NullPointerException.class, () -> algorithm.chooseWinnerIndex(null, AlgorithmDetails.of(null)));
+        AlgorithmDetails details = AlgorithmDetails.of(null);
+        assertThrows(NullPointerException.class, () -> algorithm.chooseWinnerIndex(null, details));
     }
 
     @Test

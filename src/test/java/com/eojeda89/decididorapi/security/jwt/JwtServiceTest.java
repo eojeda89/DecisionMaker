@@ -2,11 +2,11 @@ package com.eojeda89.decididorapi.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,8 +42,14 @@ class JwtServiceTest {
         String token = service.generateToken("exp", 99L);
 
         // Esperar para asegurar expiración
-        Thread.sleep(5);
-
+        await().until(() -> {
+            try {
+                service.parse(token);
+                return false; // Si no lanza excepción, aún no expiró
+            } catch (ExpiredJwtException e) {
+                return true; // Excepción esperada, ya expiró
+            }
+        });
         assertThrows(ExpiredJwtException.class, () -> service.parse(token));
     }
 

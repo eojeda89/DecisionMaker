@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.eojeda89</groupId>
     <artifactId>DecididorAPI</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.9.0</version>
     <name>DecididorAPI</name>
     <description>DecididorAPI</description>
     <url/>

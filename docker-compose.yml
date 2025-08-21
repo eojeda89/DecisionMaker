@@ -19,23 +19,18 @@ services:
       timeout: 5s
       retries: 10
 
-#  app:
-#    image: maven:3.9-eclipse-temurin-24
-#    container_name: decididor-api
-#    working_dir: /app
-#    volumes:
-#      - ./:/app
-#    command: mvn -DskipTests spring-boot:run
-#    environment:
-#      DB_URL: jdbc:postgresql://db:5432/decididor
-#      DB_USERNAME: postgres
-#      DB_PASSWORD: postgres
-#      MAVEN_OPTS: -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      db:
-#        condition: service_healthy
+  app:
+    build: .
+    container_name: decididor-api
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/decididor
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:

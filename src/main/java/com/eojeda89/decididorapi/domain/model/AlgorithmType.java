@@ -7,7 +7,9 @@ public enum AlgorithmType {
     THREAD_RACE("thread-race"),
     DICE_ROLL("dice-roll"),
     FORTUNE_WHEEL("fortune-wheel"),
-    RANDOM_WEIGHTED("random-weighted");
+    RANDOM_WEIGHTED("random-weighted"),
+    RANDOMIZED_VOTING("randomized-voting"),
+    FISHER_YATES_SELECTION("fisher-yates-selection");
 
     private final String code;
 

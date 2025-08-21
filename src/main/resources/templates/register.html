@@ -3,6 +3,8 @@
 <head>
     <title>Registro</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 <div class="container">
@@ -28,9 +30,10 @@
         <div>
             <button type="submit">Crear Cuenta</button>
         </div>
+
+        <div><a th:href="@{/login}">¿Ya tienes cuenta? Inicia sesión.</a></div>
     </form>
 
-    <div><a th:href="@{/login}">¿Ya tienes cuenta? Inicia sesión.</a></div>
 
 </div>
 </body>

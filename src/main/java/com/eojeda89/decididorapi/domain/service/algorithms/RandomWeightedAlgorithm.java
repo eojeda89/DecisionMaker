@@ -35,8 +35,8 @@ public class RandomWeightedAlgorithm implements DecisionAlgorithm {
         Map<String, Object> details = Map.of(
                 "algorithm", "Random Weighted Selection",
                 "description", "Randomly selects a winner using weighted random selection",
-                "optionsCount", String.valueOf(options.size()),
-                "weights", weights.toString(),
+                "custom_optionsCount", String.valueOf(options.size()),
+                "custom_weights", weights.toString(),
                 "winnerIndex", winnerIndex
         );
         return AlgorithmDetails.of(details);

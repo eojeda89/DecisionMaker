@@ -26,10 +26,10 @@ public class FortuneWheelAlgorithm implements DecisionAlgorithm {
         Map<String, Object> details = Map.of(
                 "algorithm", "Fortune Wheel",
                 "description", "Randomly selects a winner by spinning a fortune wheel",
-                "optionsCount", String.valueOf(options.size()),
-                "winningAngle", String.format("%.2f degrees", angle),
-                "segmentSize", String.format("%.2f degrees", segment),
-                "winningSegmentSize", String.format("%.2f° - %.2f°", startDegree, endDegree),
+                "custom_optionsCount", String.valueOf(options.size()),
+                "custom_winningAngle", String.format("%.2f degrees", angle),
+                "custom_segmentSize", String.format("%.2f degrees", segment),
+                "custom_winningSegmentSize", String.format("%.2f° - %.2f°", startDegree, endDegree),
                 "winnerIndex", index
         );
         return AlgorithmDetails.of(details);

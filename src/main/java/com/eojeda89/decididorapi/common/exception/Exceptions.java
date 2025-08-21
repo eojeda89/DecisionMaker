@@ -30,4 +30,8 @@ public final class Exceptions {
     public static class ConflictException extends RuntimeException {
         public ConflictException(String message) { super(message); }
     }
+
+    public static class AlgorithmException extends RuntimeException {
+        public AlgorithmException(String message, Throwable cause) { super(message, cause); }
+    }
 }

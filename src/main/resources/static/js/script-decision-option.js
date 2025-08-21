@@ -15,3 +15,20 @@ document.addEventListener("DOMContentLoaded", function() {
         containerOptions.appendChild(newOptionDiv);
     });
 });
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    const inputs = document.querySelectorAll('input[name="options"]');
+    let valid = true;
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            valid = false;
+            input.classList.add('input-error');
+        } else {
+            input.classList.remove('input-error');
+        }
+    });
+    if (!valid) {
+        e.preventDefault();
+        alert('Por favor, completa todas las opciones antes de decidir.');
+    }
+});

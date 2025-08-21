@@ -31,7 +31,7 @@ public class ThreadRaceAlgorithm implements DecisionAlgorithm {
             Map<String, Object> details = Map.of(
                     "algorithm", "Thread Race",
                     "description", "Randomly selects a winner by racing threads",
-                    "optionsCount", String.valueOf(options.size()),
+                    "custom_optionsCount", String.valueOf(options.size()),
                     "winnerIndex", first.get()
             );
             return AlgorithmDetails.of(details);

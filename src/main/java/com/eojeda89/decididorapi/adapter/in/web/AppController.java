@@ -8,6 +8,7 @@ import com.eojeda89.decididorapi.application.service.DecisionService;
 import com.eojeda89.decididorapi.common.exception.Exceptions;
 import com.eojeda89.decididorapi.domain.model.AlgorithmType;
 import com.eojeda89.decididorapi.domain.model.User;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -58,7 +61,7 @@ public class AppController {
 
     @PostMapping("/decide")
     public String makeDecision(
-            @RequestParam("options") List<String> opciones,
+            @RequestParam("options") List<@NotBlank String> opciones,
             @RequestParam("algorithm") String algoritmo,
             Model model) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -69,7 +72,17 @@ public class AppController {
                 .userId(user.getId())
                 .build();
         var result = decisionService.decide(decideCommand);
-        model.addAttribute("decisionResult", result);
+        model.addAttribute("winningOptionValue", result.getWinningOptionValue());
+        model.addAttribute("algorithm", result.getAlgorithmDetails().get("algorithm", String.class));
+        model.addAttribute("description", result.getAlgorithmDetails().get("description", String.class));
+        String prefijo = "custom_";
+        Map<String, Object> customDetails = result.getAlgorithmDetails().getProperties().entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(prefijo))
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().substring(prefijo.length()),
+                        Map.Entry::getValue
+                ));
+        model.addAttribute("customDetails", customDetails);
         return "decision-result";
     }
 

@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class Option {
     private OptionId id;
     private String value;
-
 }

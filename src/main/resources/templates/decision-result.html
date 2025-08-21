@@ -4,20 +4,26 @@
     <meta charset="UTF-8">
     <title>Resultado de la Decisión</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
+<div class="logout">
+    <a th:href="@{/logout}">Cerrar Sesión</a>
+</div>
 <div class="container">
     <h1>¡El Destino ha Hablado!</h1>
 
-    <div th:if="${decisionResult}">
-        <p>El algoritmo elegido fue: <span th:text="${decisionResult.algorithmType}"></span></p>
-        <p>La opción ganadora es: <strong><span th:text="${decisionResult.winningOptionValue}"></span></strong></p>
+    <div>
+        <p>La opción ganadora es: <strong><span th:text="${winningOptionValue}"></span></strong></p>
+        <p>El algoritmo elegido fue: <span th:text="${algorithm}"></span></p>
+        <p>Descripción del algoritmo: <span th:text="${description}"></span></p>
 
         <!-- Opcional: mostrar detalles adicionales del algoritmo -->
         <h3>Detalles de la Decisión:</h3>
         <ul>
-            <li th:each="detail : ${decisionResult.algorithmDetails.properties}">
-                <span th:text="${detail}"> </span>
+            <li th:each="detail : ${customDetails}">
+                <strong><span th:text="${detail.key}"></span></strong>: <span th:text="${detail.value}"></span>
             </li>
         </ul>
     </div>

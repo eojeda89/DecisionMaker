@@ -1,17 +1,17 @@
 // src/main/resources/static/js/script-decision-option.js
 
 document.addEventListener("DOMContentLoaded", function() {
-    const agregarBtn = document.getElementById("agregar-opcion");
-    const opcionesContainer = document.getElementById("opciones-container");
-    let opcionCount = 2; // Ya tenemos dos opciones iniciales
+    const addBtn = document.getElementById("add-option");
+    const containerOptions = document.getElementById("container-options");
+    let optionCount = 2; // Ya tenemos dos opciones iniciales
 
-    agregarBtn.addEventListener("click", function() {
-        opcionCount++;
-        const nuevaOpcionDiv = document.createElement("div");
-        nuevaOpcionDiv.innerHTML = `
-            <label for="opcion${opcionCount}">Opción ${opcionCount}:</label>
-            <input type="text" id="opcion${opcionCount}" name="opciones">
+    addBtn.addEventListener("click", function() {
+        optionCount++;
+        const newOptionDiv = document.createElement("div");
+        newOptionDiv.innerHTML = `
+            <label for="opcion${optionCount}">Opción ${optionCount}:</label>
+            <input type="text" id="option${optionCount}" name="options">
         `;
-        opcionesContainer.appendChild(nuevaOpcionDiv);
+        containerOptions.appendChild(newOptionDiv);
     });
 });

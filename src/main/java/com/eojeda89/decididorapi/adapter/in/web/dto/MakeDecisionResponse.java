@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -26,7 +25,7 @@ public class MakeDecisionResponse {
         MakeDecisionResponse resp = new MakeDecisionResponse();
         resp.decisionId = result.getDecisionId() != null ? result.getDecisionId().value() : null;
         resp.winningOptionId = result.getWinningOptionId() != null ? result.getWinningOptionId().value() : null;
-        resp.options = result.getOptions() != null ? result.getOptions().stream().map(OptionDto::fromDomain).collect(Collectors.toList()) : null;
+        resp.options = result.getOptions() != null ? result.getOptions().stream().map(OptionDto::fromDomain).toList() : null;
         resp.algorithmType = result.getAlgorithmType() != null ? result.getAlgorithmType().getCode() : null;
         resp.algorithmDetails = result.getAlgorithmDetails() != null ? result.getAlgorithmDetails().getProperties() : null;
         resp.createdAt = result.getCreatedAt();
@@ -37,7 +36,7 @@ public class MakeDecisionResponse {
         MakeDecisionResponse resp = new MakeDecisionResponse();
         resp.decisionId = decision.getId() != null ? decision.getId().value() : null;
         resp.winningOptionId = decision.getWinningOptionId() != null ? decision.getWinningOptionId().value() : null;
-        resp.options = decision.getOptions() != null ? decision.getOptions().stream().map(OptionDto::fromDomain).collect(Collectors.toList()) : null;
+        resp.options = decision.getOptions() != null ? decision.getOptions().stream().map(OptionDto::fromDomain).toList() : null;
         resp.algorithmType = decision.getAlgorithmType() != null ? decision.getAlgorithmType().getCode() : null;
         resp.algorithmDetails = decision.getAlgorithmDetails() != null ? decision.getAlgorithmDetails().getProperties() : null;
         resp.createdAt = decision.getCreatedAt();

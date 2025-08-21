@@ -6,14 +6,21 @@ import com.eojeda89.decididorapi.domain.model.Option;
 import com.eojeda89.decididorapi.domain.service.DecisionAlgorithm;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DiceRollAlgorithm implements DecisionAlgorithm {
     @Override
-    public int chooseWinnerIndex(List<Option> options, AlgorithmDetails details) {
+    public AlgorithmDetails chooseWinnerIndex(List<Option> options) {
         Objects.requireNonNull(options, "options");
         if (options.size() < 2) throw new Exceptions.InvalidRequestException("At least 2 options are required");
-        return ThreadLocalRandom.current().nextInt(options.size());
+        Map<String, Object> details = Map.of(
+                "algorithm", "Dice Roll",
+                "description", "Randomly selects a winner by rolling a dice",
+                "optionsCount", String.valueOf(options.size()),
+                "winnerIndex", ThreadLocalRandom.current().nextInt(options.size())
+        );
+        return AlgorithmDetails.of(details);
     }
 }

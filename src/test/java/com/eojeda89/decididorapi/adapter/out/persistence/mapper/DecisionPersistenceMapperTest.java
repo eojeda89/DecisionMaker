@@ -38,7 +38,7 @@ class DecisionPersistenceMapperTest {
         decision.setId(new DecisionId(100L));
         decision.setUser(user);
         decision.setAlgorithmType(AlgorithmType.THREAD_RACE);
-        decision.setAlgorithmDetails(AlgorithmDetails.of(Map.of("seed", 42)));
+        decision.setAlgorithmDetails(AlgorithmDetails.of(Map.of("seed", 42, "winnerIndex", 1)));
         decision.setCreatedAt(Instant.parse("2024-01-01T00:00:00Z"));
         decision.setWinningOptionId(new OptionId(10L));
         decision.setOptions(options);
@@ -98,7 +98,7 @@ class DecisionPersistenceMapperTest {
         entity.setId(100L);
         entity.setUser(userEntity);
         entity.setAlgorithmType(AlgorithmType.THREAD_RACE);
-        entity.setDetallesAlgoritmo(Map.of("seed", 42));
+        entity.setDetallesAlgoritmo(Map.of("seed", 42, "winnerIndex", 1));
         entity.setFechaDecision(Date.valueOf("2024-01-01"));
         entity.setOptions(optionEntities);
         entity.setWinningOptionId(10L);
@@ -124,6 +124,7 @@ class DecisionPersistenceMapperTest {
     @Test
     void toDomain_NullFields() {
         DecisionEntity entity = new DecisionEntity();
+        entity.setDetallesAlgoritmo(Map.of("winnerIndex", 1));
         Decision decision = mapper.toDomain(entity);
         assertNotNull(decision);
         assertNull(decision.getId());

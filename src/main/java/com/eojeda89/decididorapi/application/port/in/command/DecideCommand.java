@@ -1,6 +1,5 @@
 package com.eojeda89.decididorapi.application.port.in.command;
 
-import com.eojeda89.decididorapi.domain.model.AlgorithmDetails;
 import com.eojeda89.decididorapi.domain.model.AlgorithmType;
 import com.eojeda89.decididorapi.domain.model.UserId;
 import lombok.AllArgsConstructor;
@@ -17,6 +16,5 @@ import java.util.List;
 public class DecideCommand {
     private UserId userId;
     private AlgorithmType algorithmType;
-    private AlgorithmDetails algorithmDetails;
     private List<String> optionValues;
 }

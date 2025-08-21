@@ -16,8 +16,8 @@
         <!-- Opcional: mostrar detalles adicionales del algoritmo -->
         <h3>Detalles de la Decisión:</h3>
         <ul>
-            <li th:each="detail : ${decisionResult.algorithmDetails}">
-                <span></span>
+            <li th:each="detail : ${decisionResult.algorithmDetails.properties}">
+                <span th:text="${detail}"> </span>
             </li>
         </ul>
     </div>

@@ -8,7 +8,6 @@ import com.eojeda89.decididorapi.application.port.in.command.DecideCommand;
 import com.eojeda89.decididorapi.application.port.in.result.DecisionResult;
 import com.eojeda89.decididorapi.common.exception.Exceptions.InvalidRequestException;
 import com.eojeda89.decididorapi.common.exception.Exceptions.UnsupportedAlgorithmException;
-import com.eojeda89.decididorapi.domain.model.AlgorithmDetails;
 import com.eojeda89.decididorapi.domain.model.AlgorithmType;
 import com.eojeda89.decididorapi.domain.model.Decision;
 import com.eojeda89.decididorapi.domain.model.UserId;
@@ -37,7 +36,6 @@ public class DecisionController {
         DecideCommand command = new DecideCommand(
                 UserId.of(request.getUserId()),
                 type,
-                AlgorithmDetails.of(request.getAlgorithmDetails()),
                 request.getOptions()
         );
         DecisionResult result = makeDecisionUseCase.decide(command);

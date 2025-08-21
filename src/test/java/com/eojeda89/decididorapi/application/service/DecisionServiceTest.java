@@ -35,11 +35,11 @@ class DecisionServiceTest {
                 .userId(UserId.of(1L))
                 .optionValues(List.of("A", "B", "C"))
                 .algorithmType(AlgorithmType.THREAD_RACE)
-                .algorithmDetails(AlgorithmDetails.of(Map.of("seed", 42)))
                 .build();
+        AlgorithmDetails algorithmDetails = AlgorithmDetails.of(Map.of("seed", 42, "winnerIndex", 1));
 
         // El algoritmo elige el índice 1 (opción "B")
-        when(algorithm.chooseWinnerIndex(anyList(), any())).thenReturn(1);
+        when(algorithm.chooseWinnerIndex(anyList())).thenReturn(algorithmDetails);
 
         // Simular persistencia: primer save asigna ids a opciones, segundo save asigna ganador
         List<Option> optionsWithIds = List.of(
@@ -51,7 +51,7 @@ class DecisionServiceTest {
                 new DecisionId(100L),
                 new User(UserId.of(1L), null, null, null, null, null),
                 AlgorithmType.THREAD_RACE,
-                AlgorithmDetails.of(Map.of("seed", 42)),
+                algorithmDetails,
                 optionsWithIds,
                 null,
                 Instant.parse("2024-01-01T00:00:00Z"),
@@ -61,7 +61,7 @@ class DecisionServiceTest {
                 new DecisionId(100L),
                 new User(UserId.of(1L), null, null, null, null, null),
                 AlgorithmType.THREAD_RACE,
-                AlgorithmDetails.of(Map.of("seed", 42)),
+                algorithmDetails,
                 optionsWithIds,
                 new OptionId(11L),
                 Instant.parse("2024-01-01T00:00:00Z"),
@@ -78,7 +78,7 @@ class DecisionServiceTest {
         assertEquals(AlgorithmType.THREAD_RACE, result.getAlgorithmType());
         assertEquals(42, result.getAlgorithmDetails().getProperties().get("seed"));
         assertEquals(Instant.parse("2024-01-01T00:00:00Z"), result.getCreatedAt());
-        verify(algorithm).chooseWinnerIndex(anyList(), any());
+        verify(algorithm).chooseWinnerIndex(anyList());
         verify(decisionRepository, times(2)).save(any());
     }
 
@@ -138,7 +138,9 @@ class DecisionServiceTest {
                 .algorithmType(AlgorithmType.THREAD_RACE)
                 .build();
 
-        when(algorithm.chooseWinnerIndex(anyList(), any())).thenReturn(5); // fuera de rango
+        AlgorithmDetails algorithmDetails = AlgorithmDetails.of(Map.of("seed", 42, "winnerIndex", 5));
+
+        when(algorithm.chooseWinnerIndex(anyList())).thenReturn(algorithmDetails); // fuera de rango
 
         assertThrows(Exceptions.DomainValidationException.class, () -> service.decide(cmd));
     }

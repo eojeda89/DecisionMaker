@@ -48,5 +48,13 @@ public final class AlgorithmDetails {
                 throw new IllegalArgumentException("Property value for key '" + entry.getKey() + "' cannot be null");
             }
         }
+        if (properties.containsKey("winnerIndex")) {
+            Object winnerIndex = properties.get("winnerIndex");
+            if (!(winnerIndex instanceof Integer integer) || integer < 0) {
+                throw new IllegalArgumentException("Property 'winnerIndex' must be a non-negative integer");
+            }
+        } else {
+            throw new IllegalArgumentException("Property 'winnerIndex' is required");
+        }
     }
 }

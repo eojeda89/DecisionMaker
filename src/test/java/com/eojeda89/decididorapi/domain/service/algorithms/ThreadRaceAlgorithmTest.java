@@ -22,32 +22,31 @@ class ThreadRaceAlgorithmTest {
     @Test
     void chooseWinnerIndex_HappyPath_ReturnsValidIndex() {
         List<Option> options = List.of(mock(Option.class), mock(Option.class), mock(Option.class));
-        AlgorithmDetails details = AlgorithmDetails.of(null);
 
-        int index = algorithm.chooseWinnerIndex(options, details);
+        AlgorithmDetails algorithmDetails = algorithm.chooseWinnerIndex(options);
+        int index = algorithmDetails.get("winnerIndex", Integer.class);
 
         assertTrue(index >= 0 && index < options.size());
     }
 
     @Test
     void chooseWinnerIndex_OptionsIsNull_ThrowsException() {
-        AlgorithmDetails details = AlgorithmDetails.of(null);
-        assertThrows(NullPointerException.class, () -> algorithm.chooseWinnerIndex(null, details));
+        assertThrows(NullPointerException.class, () -> algorithm.chooseWinnerIndex(null));
     }
 
     @Test
     void chooseWinnerIndex_OptionsWithOneElement_ThrowsException() {
         List<Option> options = List.of(mock(Option.class));
-        assertThrows(Exceptions.InvalidRequestException.class, () -> algorithm.chooseWinnerIndex(options, AlgorithmDetails.of(null)));
+        assertThrows(Exceptions.InvalidRequestException.class, () -> algorithm.chooseWinnerIndex(options));
     }
 
     @Test
     void chooseWinnerIndex_AlwaysReturnsIndexWithinBounds() {
         List<Option> options = List.of(mock(Option.class), mock(Option.class), mock(Option.class), mock(Option.class));
-        AlgorithmDetails details = AlgorithmDetails.of(null);
 
         for (int i = 0; i < 30; i++) {
-            int index = algorithm.chooseWinnerIndex(options, details);
+            AlgorithmDetails algorithmDetails = algorithm.chooseWinnerIndex(options);
+            int index = algorithmDetails.get("winnerIndex", Integer.class);
             assertTrue(index >= 0 && index < options.size(), "Índice fuera de rango: " + index);
         }
     }
@@ -56,17 +55,16 @@ class ThreadRaceAlgorithmTest {
     void chooseWinnerIndex_Interrupted_ThrowsAlgorithmFailureException() throws Exception {
         ThreadRaceAlgorithm algo = new ThreadRaceAlgorithm() {
             @Override
-            public int chooseWinnerIndex(List<Option> options, AlgorithmDetails details) {
+            public AlgorithmDetails chooseWinnerIndex(List<Option> options) {
                 Thread.currentThread().interrupt();
-                return super.chooseWinnerIndex(options, details);
+                return super.chooseWinnerIndex(options);
             }
         };
         List<Option> options = List.of(mock(Option.class), mock(Option.class));
-        AlgorithmDetails details = AlgorithmDetails.of(null);
 
         Exceptions.AlgorithmFailureException ex = assertThrows(
                 Exceptions.AlgorithmFailureException.class,
-                () -> algo.chooseWinnerIndex(options, details)
+                () -> algo.chooseWinnerIndex(options)
         );
         assertTrue(ex.getMessage().contains("Interrupted"));
     }
@@ -75,13 +73,12 @@ class ThreadRaceAlgorithmTest {
     void chooseWinnerIndex_ExecutionException_ThrowsAlgorithmFailureException() {
         ThreadRaceAlgorithm algo = new ThreadRaceAlgorithm() {
             @Override
-            public int chooseWinnerIndex(List<Option> options, AlgorithmDetails details) {
+            public AlgorithmDetails chooseWinnerIndex(List<Option> options) {
                 throw new CompletionException(new RuntimeException("Simulated error"));
             }
         };
         List<Option> options = List.of(mock(Option.class), mock(Option.class));
-        AlgorithmDetails details = AlgorithmDetails.of(null);
 
-        assertThrows(CompletionException.class, () -> algo.chooseWinnerIndex(options, details));
+        assertThrows(CompletionException.class, () -> algo.chooseWinnerIndex(options));
     }
 }

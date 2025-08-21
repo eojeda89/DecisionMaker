@@ -20,33 +20,32 @@ class RandomWeightedAlgorithmTest {
     @Test
     void chooseWinnerIndex_HappyPath_ReturnsValidIndex() {
         List<Option> options = List.of(mock(Option.class), mock(Option.class), mock(Option.class));
-        AlgorithmDetails details = AlgorithmDetails.of(null);
 
-        int index = algorithm.chooseWinnerIndex(options, details);
+        AlgorithmDetails algorithmDetails = algorithm.chooseWinnerIndex(options);
+        int index = algorithmDetails.get("winnerIndex", Integer.class);
 
         assertTrue(index >= 0 && index < options.size());
     }
 
     @Test
     void chooseWinnerIndex_OptionsIsNull_ThrowsException() {
-        AlgorithmDetails details = AlgorithmDetails.of(null);
-        assertThrows(NullPointerException.class, () -> algorithm.chooseWinnerIndex(null, details));
+        assertThrows(NullPointerException.class, () -> algorithm.chooseWinnerIndex(null));
     }
 
     @Test
     void chooseWinnerIndex_OptionsWithOneElement_ThrowsException() {
         List<Option> options = List.of(mock(Option.class));
-        assertThrows(Exceptions.InvalidRequestException.class, () -> algorithm.chooseWinnerIndex(options, AlgorithmDetails.of(null)));
+        assertThrows(Exceptions.InvalidRequestException.class, () -> algorithm.chooseWinnerIndex(options));
     }
 
     @Test
     void chooseWinnerIndex_AlwaysReturnsIndexWithinBounds() {
         List<Option> options = List.of(mock(Option.class), mock(Option.class), mock(Option.class), mock(Option.class));
-        AlgorithmDetails details = AlgorithmDetails.of(null);
 
         // Ejecutar varias veces para cubrir aleatoriedad
         for (int i = 0; i < 100; i++) {
-            int index = algorithm.chooseWinnerIndex(options, details);
+            AlgorithmDetails algorithmDetails = algorithm.chooseWinnerIndex(options);
+            int index = algorithmDetails.get("winnerIndex", Integer.class);
             assertTrue(index >= 0 && index < options.size(), "Índice fuera de rango: " + index);
         }
     }

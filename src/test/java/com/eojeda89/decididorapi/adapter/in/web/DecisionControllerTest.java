@@ -42,7 +42,6 @@ class DecisionControllerTest {
         validRequest = new MakeDecisionRequest(
                 1L,
                 "THREAD_RACE",
-                Map.of("seed", 42),
                 List.of("A", "B")
         );
     }
@@ -54,7 +53,7 @@ class DecisionControllerTest {
                 .winningOptionId(OptionId.of(100L))
                 .options(List.of(new Option(OptionId.of(100L), "A"), new Option(OptionId.of(101L), "B")))
                 .algorithmType(AlgorithmType.THREAD_RACE)
-                .algorithmDetails(AlgorithmDetails.of(Map.of("seed", 42)))
+                .algorithmDetails(AlgorithmDetails.of(Map.of("seed", 42, "winnerIndex", 1)))
                 .createdAt(Instant.now())
                 .build();
         when(makeDecisionUseCase.decide(any(DecideCommand.class))).thenReturn(result);
@@ -110,7 +109,7 @@ class DecisionControllerTest {
                         .winningOptionId(OptionId.of(100L))
                         .options(List.of(new Option(OptionId.of(100L), "A"), new Option(OptionId.of(101L), "B")))
                         .algorithmType(AlgorithmType.THREAD_RACE)
-                        .algorithmDetails(AlgorithmDetails.of(Map.of("seed", 42)))
+                        .algorithmDetails(AlgorithmDetails.of(Map.of("seed", 42, "winnerIndex", 1)))
                         .createdAt(Instant.now())
                         .build()
                 );

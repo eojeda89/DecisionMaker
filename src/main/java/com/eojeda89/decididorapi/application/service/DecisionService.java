@@ -46,12 +46,17 @@ public class DecisionService implements MakeDecisionUseCase, GetDecisionHistoryU
         User user = new User();
         user.setId(command.getUserId());
 
-        // Crear agregado Decision sin ganador todavía
+        // Crear agregado Decision sin ganador todavía y sin detalles de algoritmo
         Decision decision = new Decision(null, user, command.getAlgorithmType(),
-                command.getAlgorithmDetails(), options, null, Instant.now(), null);
+                null, options, null, Instant.now(), null);
 
         // Elegir ganador por índice (sin depender de ids aún)
-        int winnerIndex = algorithm.chooseWinnerIndex(options, command.getAlgorithmDetails());
+        AlgorithmDetails algorithmDetails = algorithm.chooseWinnerIndex(options);
+        decision.setAlgorithmDetails(algorithmDetails);
+        if (algorithmDetails == null) {
+            throw new Exceptions.InvalidRequestException("Algorithm did not return valid details");
+        }
+        int winnerIndex = algorithmDetails.get("winnerIndex", Integer.class);
         if (winnerIndex < 0 || winnerIndex >= options.size()) {
             throw new Exceptions.DomainValidationException("Algorithm produced an out-of-range index");
         }

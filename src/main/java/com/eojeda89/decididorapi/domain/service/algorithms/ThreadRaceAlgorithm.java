@@ -6,12 +6,13 @@ import com.eojeda89.decididorapi.domain.model.Option;
 import com.eojeda89.decididorapi.domain.service.DecisionAlgorithm;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.*;
 
 public class ThreadRaceAlgorithm implements DecisionAlgorithm {
     @Override
-    public int chooseWinnerIndex(List<Option> options, AlgorithmDetails details) {
+    public AlgorithmDetails chooseWinnerIndex(List<Option> options) {
         Objects.requireNonNull(options, "options");
         if (options.size() < 2) throw new Exceptions.InvalidRequestException("At least 2 options are required");
         int n = options.size();
@@ -27,7 +28,13 @@ public class ThreadRaceAlgorithm implements DecisionAlgorithm {
                 });
             }
             Future<Integer> first = cs.take();
-            return first.get();
+            Map<String, Object> details = Map.of(
+                    "algorithm", "Thread Race",
+                    "description", "Randomly selects a winner by racing threads",
+                    "optionsCount", String.valueOf(options.size()),
+                    "winnerIndex", first.get()
+            );
+            return AlgorithmDetails.of(details);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new Exceptions.AlgorithmFailureException("Interrupted while running the race", e);

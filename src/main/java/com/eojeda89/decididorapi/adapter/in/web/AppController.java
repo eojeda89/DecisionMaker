@@ -55,10 +55,11 @@ public class AppController {
         if (authentication != null && authentication.isAuthenticated()) {
             model.addAttribute("username", authentication.getName());
         }
-        // BEST_OF_N no es un DecisionAlgorithm de un solo tiro: no encaja en
-        // este dropdown (ver /api/decisions/best-of-n para esa mecánica).
+        // BEST_OF_N y DAILY no son un DecisionAlgorithm de un solo tiro: no
+        // encajan en este dropdown (ver /api/decisions/best-of-n y
+        // /api/decisions/daily para esas mecánicas).
         model.addAttribute("algorithms", java.util.Arrays.stream(AlgorithmType.values())
-                .filter(type -> type != AlgorithmType.BEST_OF_N)
+                .filter(type -> type != AlgorithmType.BEST_OF_N && type != AlgorithmType.DAILY)
                 .toList());
 
         return "decision-form";

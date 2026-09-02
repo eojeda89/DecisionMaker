@@ -1,8 +1,10 @@
 package com.eojeda89.decididorapi.adapter.in.web;
 
 import com.eojeda89.decididorapi.adapter.in.web.dto.BestOfNRequest;
+import com.eojeda89.decididorapi.adapter.in.web.dto.DailyDecisionRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionResponse;
+import com.eojeda89.decididorapi.application.port.in.GetDailyDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.GetDecisionHistoryUseCase;
 import com.eojeda89.decididorapi.application.port.in.GetSharedDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeBestOfNDecisionUseCase;
@@ -50,6 +52,8 @@ class DecisionControllerTest {
     private GetDecisionHistoryUseCase getDecisionHistoryUseCase;
     @Mock
     private GetSharedDecisionUseCase getSharedDecisionUseCase;
+    @Mock
+    private GetDailyDecisionUseCase getDailyDecisionUseCase;
     @Mock
     private AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
     @Mock
@@ -201,6 +205,30 @@ class DecisionControllerTest {
                 .thenThrow(new ResourceNotFoundException("Shared decision not found"));
 
         assertThrows(ResourceNotFoundException.class, () -> controller.getSharedDecision("NOEXISTE"));
+    }
+
+    @Test
+    void getDailyDecision_HappyPath() {
+        DailyDecisionRequest request = new DailyDecisionRequest(List.of("A", "B"));
+        DecisionResult result = DecisionResult.builder()
+                .winningOptionId(OptionId.of(1L))
+                .winningOptionValue("A")
+                .options(List.of(new Option(OptionId.of(1L), "A"), new Option(OptionId.of(2L), "B")))
+                .algorithmType(AlgorithmType.DAILY)
+                .algorithmDetails(AlgorithmDetails.of(Map.of("winnerIndex", 1)))
+                .build();
+        when(getDailyDecisionUseCase.getDaily(UserId.of(1L), List.of("A", "B"))).thenReturn(result);
+
+        MakeDecisionResponse response = controller.getDailyDecision(request);
+
+        assertNull(response.getDecisionId(), "no persistido -> sin id real");
+        assertEquals(1L, response.getWinningOptionId());
+        assertEquals("daily", response.getAlgorithmType());
+    }
+
+    @Test
+    void getDailyDecision_NullRequest_ThrowsException() {
+        assertThrows(NullPointerException.class, () -> controller.getDailyDecision(null));
     }
 
     @Test

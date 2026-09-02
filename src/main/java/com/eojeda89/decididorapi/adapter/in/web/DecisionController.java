@@ -1,8 +1,10 @@
 package com.eojeda89.decididorapi.adapter.in.web;
 
 import com.eojeda89.decididorapi.adapter.in.web.dto.BestOfNRequest;
+import com.eojeda89.decididorapi.adapter.in.web.dto.DailyDecisionRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionResponse;
+import com.eojeda89.decididorapi.application.port.in.GetDailyDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.GetDecisionHistoryUseCase;
 import com.eojeda89.decididorapi.application.port.in.GetSharedDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeBestOfNDecisionUseCase;
@@ -47,6 +49,7 @@ public class DecisionController {
     private final MakeBestOfNDecisionUseCase makeBestOfNDecisionUseCase;
     private final GetDecisionHistoryUseCase getDecisionHistoryUseCase;
     private final GetSharedDecisionUseCase getSharedDecisionUseCase;
+    private final GetDailyDecisionUseCase getDailyDecisionUseCase;
     private final AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
     private final UserRepository userRepository;
 
@@ -81,6 +84,16 @@ public class DecisionController {
                 .algorithmPool(pool)
                 .build();
         DecisionResult result = makeBestOfNDecisionUseCase.decide(command);
+        MakeDecisionResponse response = MakeDecisionResponse.fromResult(result);
+        response.setAlgorithmDetails(algorithmDetailsLocalizer.localize(result.getAlgorithmDetails()));
+        return response;
+    }
+
+    @PostMapping("/daily")
+    @Operation(summary = "Decisión del día", description = "Resultado determinístico por (fecha UTC, usuario, opciones) — pedirla de nuevo el mismo día da siempre el mismo resultado. No se persiste ni crea una fila nueva cada vez, se recalcula desde una semilla.")
+    public MakeDecisionResponse getDailyDecision(@Valid @RequestBody DailyDecisionRequest request) {
+        Objects.requireNonNull(request, "request");
+        DecisionResult result = getDailyDecisionUseCase.getDaily(resolveAuthenticatedUserId(), request.getOptions());
         MakeDecisionResponse response = MakeDecisionResponse.fromResult(result);
         response.setAlgorithmDetails(algorithmDetailsLocalizer.localize(result.getAlgorithmDetails()));
         return response;

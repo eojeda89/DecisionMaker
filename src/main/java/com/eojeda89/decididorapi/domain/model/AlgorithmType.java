@@ -16,7 +16,11 @@ public enum AlgorithmType {
     // que no tiene entrada en el mapa de DecisionAlgorithmConfig. Se excluye
     // a propósito del dropdown de /form (AppController) porque no encaja en
     // el flujo de "un solo algoritmo" de esa pantalla.
-    BEST_OF_N("best-of-n", "Mejor de N");
+    BEST_OF_N("best-of-n", "Mejor de N"),
+    // Fase 3.5: resultado determinístico (semilla = fecha + usuario +
+    // opciones) vía DailyDecisionService, no persistido, no un
+    // DecisionAlgorithm propio. También excluido del dropdown de /form.
+    DAILY("daily", "Decisión del día");
 
     private final String code;
     private final String uiName;

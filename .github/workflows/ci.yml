@@ -19,6 +19,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      # Defensivo: el bit ejecutable de mvnw ya está seteado en git (modo
+      # 755), pero este paso evita que la CI vuelva a romperse si alguna vez
+      # se pierde (ej. checkout/edit desde Windows) — es el mismo bug que ya
+      # mordió al build de Docker antes.
+      - name: Make Maven wrapper executable
+        run: chmod +x ./mvnw
+
       # No hay servicio de Postgres acá: hoy la suite es 100% unit tests
       # (Mockito), sin @SpringBootTest/@DataJpaTest activos. Si se agrega un
       # test con contexto de Spring que necesite DB real, sumar un servicio

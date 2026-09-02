@@ -31,6 +31,8 @@ class DecisionControllerTest {
     private MakeDecisionUseCase makeDecisionUseCase;
     @Mock
     private GetDecisionHistoryUseCase getDecisionHistoryUseCase;
+    @Mock
+    private AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
 
     @InjectMocks
     private DecisionController controller;
@@ -44,6 +46,11 @@ class DecisionControllerTest {
                 "THREAD_RACE",
                 List.of("A", "B")
         );
+        lenient().when(algorithmDetailsLocalizer.localize(any()))
+                .thenAnswer(invocation -> {
+                    AlgorithmDetails details = invocation.getArgument(0);
+                    return details == null ? Map.of() : details.getProperties();
+                });
     }
 
     @Test

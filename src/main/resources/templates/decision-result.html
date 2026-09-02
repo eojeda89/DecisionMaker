@@ -2,25 +2,25 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Resultado de la Decisión</title>
+    <title th:text="#{result.title}">Resultado de la Decisión</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 <div class="logout">
-    <a th:href="@{/logout}">Cerrar Sesión</a>
+    <a th:href="@{/logout}" th:text="#{nav.logout}">Cerrar Sesión</a>
 </div>
 <div class="container">
-    <h1>¡El Destino ha Hablado!</h1>
+    <h1 th:text="#{result.heading}">¡El Destino ha Hablado!</h1>
 
     <div>
-        <p>La opción ganadora es: <strong><span th:text="${winningOptionValue}"></span></strong></p>
-        <p>El algoritmo elegido fue: <span th:text="${algorithm}"></span></p>
-        <p>Descripción del algoritmo: <span th:text="${description}"></span></p>
+        <p><span th:text="#{result.winningOption}">La opción ganadora es:</span> <strong><span th:text="${winningOptionValue}"></span></strong></p>
+        <p><span th:text="#{result.algorithmChosen}">El algoritmo elegido fue:</span> <span th:text="${algorithm}"></span></p>
+        <p><span th:text="#{result.algorithmDescription}">Descripción del algoritmo:</span> <span th:text="${description}"></span></p>
 
         <!-- Opcional: mostrar detalles adicionales del algoritmo -->
-        <h3>Detalles de la Decisión:</h3>
+        <h3 th:text="#{result.detailsHeading}">Detalles de la Decisión:</h3>
         <ul>
             <li th:each="detail : ${customDetails}">
                 <strong><span th:text="${detail.key}"></span></strong>: <span th:text="${detail.value}"></span>
@@ -28,7 +28,7 @@
         </ul>
     </div>
 
-    <a href="/form">Volver a Decidir</a>
+    <a href="/form" th:text="#{result.backLink}">Volver a Decidir</a>
 </div>
 </body>
 </html>

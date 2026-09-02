@@ -24,8 +24,8 @@ public class FortuneWheelAlgorithm implements DecisionAlgorithm {
         double endDegree = startDegree + segment;
 
         Map<String, Object> details = Map.of(
-                "algorithm", "Rueda de la fortuna",
-                "description", "Se elige un ganador al azar girando una ruleta de la fortuna.",
+                "algorithm", "algorithm.fortune-wheel.name",
+                "description", "algorithm.fortune-wheel.description",
                 "custom_optionsCount", String.valueOf(options.size()),
                 "custom_winningAngle", String.format("%.2f degrees", angle),
                 "custom_segmentSize", String.format("%.2f degrees", segment),

@@ -29,8 +29,8 @@ public class ThreadRaceAlgorithm implements DecisionAlgorithm {
             }
             Future<Integer> first = cs.take();
             Map<String, Object> details = Map.of(
-                    "algorithm", "Carrera de hilos",
-                    "description", "Se elige un ganador al azar mediante una carrera de hilos.",
+                    "algorithm", "algorithm.thread-race.name",
+                    "description", "algorithm.thread-race.description",
                     "custom_optionsCount", String.valueOf(options.size()),
                     "winnerIndex", first.get()
             );

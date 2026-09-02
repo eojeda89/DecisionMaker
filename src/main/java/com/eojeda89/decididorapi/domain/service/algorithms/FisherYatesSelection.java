@@ -30,8 +30,8 @@ public class FisherYatesSelection implements DecisionAlgorithm {
                 .map(Option::getValue)
                 .toList();
         Map<String, Object> details = Map.of(
-                "algorithm", "Selección Fisher-Yates",
-                "description", "Se elige un ganador al azar barajando la lista de opciones y tomando el primer elemento.",
+                "algorithm", "algorithm.fisher-yates-selection.name",
+                "description", "algorithm.fisher-yates-selection.description",
                 "custom_optionsCount", String.valueOf(options.size()),
                 "custom_shuffledOptions", shuffledOptions,
                 "winnerIndex", winnerIndex

@@ -2,38 +2,38 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Decididor 2.0</title>
+    <title th:text="#{decide.title}">Decididor 2.0</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 <div class="logout">
-    <a th:href="@{/logout}">Cerrar Sesión</a>
+    <a th:href="@{/logout}" th:text="#{nav.logout}">Cerrar Sesión</a>
 </div>
 <div class="container">
-    <h1>Decididor 2.0</h1>
-    <p>¡Bienvenido al Decididor 2.0! Aquí puedes tomar decisiones de manera divertida y aleatoria.</p>
+    <h1 th:text="#{decide.heading}">Decididor 2.0</h1>
+    <p th:text="#{decide.welcome}">¡Bienvenido al Decididor 2.0! Aquí puedes tomar decisiones de manera divertida y aleatoria.</p>
     <form action="/decide" method="post">
 
         <div id="container-options">
-            <h2>Deja que el destino decida por tí.</h2>
+            <h2 th:text="#{decide.optionsHeading}">Deja que el destino decida por tí.</h2>
             <div>
-                <label for="option1">Opción 1:</label>
+                <label for="option1" th:text="#{decide.option1Label}">Opción 1:</label>
                 <input type="text" id="option1" name="options">
             </div>
             <div>
-                <label for="option2">Opción 2:</label>
+                <label for="option2" th:text="#{decide.option2Label}">Opción 2:</label>
                 <input type="text" id="option2" name="options">
             </div>
         </div>
 
         <div>
-            <button type="button" id="add-option">Agregar otra opción</button>
+            <button type="button" id="add-option" th:text="#{decide.addOption}">Agregar otra opción</button>
         </div>
 
         <div>
-            <label for="algorithm">Elige un Algoritmo:</label>
+            <label for="algorithm" th:text="#{decide.algorithmLabel}">Elige un Algoritmo:</label>
             <select id="algorithm" name="algorithm">
                 <!-- Iteramos sobre la lista de algoritmos -->
                 <option th:each="algorithm : ${algorithms}"
@@ -43,7 +43,7 @@
             </select>
         </div>
 
-        <button type="submit">¡Decidir!</button>
+        <button type="submit" th:text="#{decide.submit}">¡Decidir!</button>
     </form>
 </div>
 <!-- Enlace al archivo de script externo -->

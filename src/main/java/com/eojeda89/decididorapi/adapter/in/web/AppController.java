@@ -29,6 +29,7 @@ public class AppController {
     private final DecisionService decisionService;
     private final UserRepository userRepository;
     private final RegisterUserUseCase registerUserUseCase;
+    private final AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
 
     @GetMapping("/login")
     public String login() {
@@ -72,11 +73,12 @@ public class AppController {
                 .userId(user.getId())
                 .build();
         var result = decisionService.decide(decideCommand);
+        Map<String, Object> resolvedDetails = algorithmDetailsLocalizer.localize(result.getAlgorithmDetails());
         model.addAttribute("winningOptionValue", result.getWinningOptionValue());
-        model.addAttribute("algorithm", result.getAlgorithmDetails().get("algorithm", String.class));
-        model.addAttribute("description", result.getAlgorithmDetails().get("description", String.class));
+        model.addAttribute("algorithm", resolvedDetails.get("algorithm"));
+        model.addAttribute("description", resolvedDetails.get("description"));
         String prefijo = "custom_";
-        Map<String, Object> customDetails = result.getAlgorithmDetails().getProperties().entrySet().stream()
+        Map<String, Object> customDetails = resolvedDetails.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(prefijo))
                 .collect(Collectors.toMap(
                         entry -> entry.getKey().substring(prefijo.length()),

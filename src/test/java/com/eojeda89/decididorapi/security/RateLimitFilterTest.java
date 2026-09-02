@@ -102,4 +102,18 @@ class RateLimitFilterTest {
         filter.doFilter(request("GET", "/api/decisions", "10.0.0.2"), stillBlocked, chain);
         assertEquals(429, stillBlocked.getStatus());
     }
+
+    @Test
+    void doFilter_TemplatesPath_AllowsUpToLimitThenBlocks() throws Exception {
+        FilterChain chain = mock(FilterChain.class);
+
+        // El límite de /api/templates es 60 por ventana (ver RateLimitFilter).
+        for (int i = 0; i < 60; i++) {
+            filter.doFilter(request("GET", "/api/templates", "10.0.0.1"), new MockHttpServletResponse(), chain);
+        }
+        MockHttpServletResponse blocked = new MockHttpServletResponse();
+        filter.doFilter(request("GET", "/api/templates", "10.0.0.1"), blocked, chain);
+
+        assertEquals(429, blocked.getStatus());
+    }
 }

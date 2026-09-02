@@ -117,10 +117,11 @@ Endpoints principales:
 - `POST /api/decisions/daily` — "decisión del día" (Fase 3.5): resultado determinístico por (fecha UTC, usuario, opciones) — pedirla de nuevo el mismo día da siempre el mismo ganador (el orden de las opciones en el request no importa). No se persiste ni crea una fila nueva cada vez, se recalcula desde una semilla; por eso `decisionId`/`createdAt`/`shareCode` vienen `null` en la respuesta.
 - `GET /api/decisions?page=&size=` — historial paginado de decisiones del usuario autenticado, más reciente primero (requiere `Authorization: Bearer <token>`). `page` default `0`, `size` default `20` (máximo `100`).
 - `GET /api/decisions/shared/{shareCode}` — **público, sin autenticación**: cualquiera con el código ve el mismo resultado y su explicación ("salas compartidas", Fase 3.3). Cada decisión creada devuelve su `shareCode` en la respuesta. No expone ningún dato del dueño.
+- `POST /api/templates`, `GET /api/templates`, `GET /api/templates/{id}`, `DELETE /api/templates/{id}` — plantillas de opciones reutilizables (Fase 3.6, ej. "restaurantes del barrio") para no volver a tipear la misma lista en cada decisión; no deciden nada por sí solas. Acotadas al usuario autenticado — acceder a una plantilla ajena por id da `404`, no `403`, para no filtrar si existe.
 
-Ninguno de los endpoints autenticados de `/api/decisions` acepta un `userId` — quién decide/consulta se determina siempre del JWT, nunca de un valor que el cliente podría manipular.
+Ninguno de los endpoints autenticados de `/api/decisions` o `/api/templates` acepta un `userId` — quién decide/consulta/es dueño se determina siempre del JWT, nunca de un valor que el cliente podría manipular.
 
-`/auth/login` y `/api/decisions` tienen rate limiting básico en memoria (por IP en `/auth/login`, por usuario autenticado en `/api/decisions`): 10 y 60 requests por minuto respectivamente. Al superarlo, responden `429 Too Many Requests`.
+`/auth/login`, `/api/decisions` y `/api/templates` tienen rate limiting básico en memoria (por IP en `/auth/login`, por usuario autenticado en los otros dos): 10, 60 y 60 requests por minuto respectivamente. Al superarlo, responden `429 Too Many Requests`.
 
 ## Deploy
 

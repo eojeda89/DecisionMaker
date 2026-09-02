@@ -18,7 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Rate limiting simple en memoria, por ventana fija de 1 minuto, para
  * /auth/login (clave: IP del cliente, todavía no hay usuario autenticado)
- * y /api/decisions (clave: usuario autenticado si lo hay, si no la IP).
+ * y /api/decisions y /api/templates (clave: usuario autenticado si lo hay,
+ * si no la IP).
  * <p>
  * No pretende ser exacto ni distribuido — alcanza para frenar fuerza
  * bruta/abuso básico en un proyecto de este tamaño corriendo en una sola
@@ -34,6 +35,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final long WINDOW_MILLIS = 60_000;
     private static final int LOGIN_LIMIT_PER_WINDOW = 10;
     private static final int DECISIONS_LIMIT_PER_WINDOW = 60;
+    private static final int TEMPLATES_LIMIT_PER_WINDOW = 60;
 
     private final Map<String, Window> windows = new ConcurrentHashMap<>();
 
@@ -61,6 +63,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private Integer limitFor(String path) {
         if ("/auth/login".equals(path)) return LOGIN_LIMIT_PER_WINDOW;
         if (path.startsWith("/api/decisions")) return DECISIONS_LIMIT_PER_WINDOW;
+        if (path.startsWith("/api/templates")) return TEMPLATES_LIMIT_PER_WINDOW;
         return null;
     }
 

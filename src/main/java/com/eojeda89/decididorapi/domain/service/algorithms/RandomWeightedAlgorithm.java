@@ -39,6 +39,7 @@ public class RandomWeightedAlgorithm implements DecisionAlgorithm {
                 "description", "algorithm.random-weighted.description",
                 "custom_optionsCount", String.valueOf(options.size()),
                 "custom_weights", weights.toString(),
+                "steps", NarrativeSteps.singleStep("narrative.random-weighted", options.get(winnerIndex).getValue()),
                 "winnerIndex", winnerIndex
         );
         return AlgorithmDetails.of(details);

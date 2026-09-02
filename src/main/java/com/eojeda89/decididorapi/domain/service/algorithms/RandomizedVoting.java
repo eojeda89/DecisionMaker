@@ -31,6 +31,7 @@ public class RandomizedVoting implements DecisionAlgorithm {
                 "description", "algorithm.randomized-voting.description",
                 "custom_optionsCount", String.valueOf(options.size()),
                 "custom_votes", votes.values(),
+                "steps", NarrativeSteps.singleStep("narrative.randomized-voting", options.get(winnerIndex).getValue()),
                 "winnerIndex", winnerIndex
         );
         return AlgorithmDetails.of(details);

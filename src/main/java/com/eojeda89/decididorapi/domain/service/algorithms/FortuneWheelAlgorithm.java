@@ -30,6 +30,7 @@ public class FortuneWheelAlgorithm implements DecisionAlgorithm {
                 "custom_winningAngle", String.format("%.2f degrees", angle),
                 "custom_segmentSize", String.format("%.2f degrees", segment),
                 "custom_winningSegmentSize", String.format("%.2f° - %.2f°", startDegree, endDegree),
+                "steps", NarrativeSteps.singleStep("narrative.fortune-wheel", String.format("%.0f", angle), options.get(index).getValue()),
                 "winnerIndex", index
         );
         return AlgorithmDetails.of(details);

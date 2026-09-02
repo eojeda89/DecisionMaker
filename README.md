@@ -32,7 +32,7 @@ flowchart LR
 
     subgraph domain["domain"]
         MODEL["model\nDecision · Option · User\nAlgorithmType"]
-        ALGOS["service/algorithms\n(6 algoritmos, clases puras)"]
+        ALGOS["service/algorithms\n(7 algoritmos, clases puras)"]
     end
 
     subgraph adapters_out["adapter/out/persistence"]
@@ -51,7 +51,7 @@ flowchart LR
 ```
 
 - **`domain/model`** — tipos de dominio planos (`Decision`, `Option`, `User`, `AlgorithmType`, value objects de id). `Decision` es el agregado; `AlgorithmType` es la fuente de verdad que mapea cada algoritmo a su `code` de API (ej. `"dice-roll"`) y su `uiName` en español para el dropdown de Thymeleaf.
-- **`domain/service`** — la interfaz `DecisionAlgorithm` y sus seis implementaciones en `domain/service/algorithms/` (lanzamiento de dados, carrera de hilos, ruleta, aleatorio ponderado, votación aleatorizada, Fisher-Yates). Son clases puras, sin Spring — el wiring vive en `configuration/DecisionAlgorithmConfig`.
+- **`domain/service`** — la interfaz `DecisionAlgorithm` y sus siete implementaciones en `domain/service/algorithms/` (lanzamiento de dados, carrera de hilos, ruleta, aleatorio ponderado, votación aleatorizada, Fisher-Yates, torneo eliminatorio). Son clases puras, sin Spring — el wiring vive en `configuration/DecisionAlgorithmConfig`. Cada algoritmo devuelve, además del ganador, una narrativa paso a paso (`AlgorithmDetails["steps"]`) resuelta a texto por `adapter/in/web/AlgorithmDetailsLocalizer`.
 - **`application/port/in` y `application/port/out`** — interfaces de casos de uso y de repositorios salientes. Es la capa de la que depende todo lo demás.
 - **`application/service`** — implementaciones de los casos de uso. `DecisionService.decide()` hace un **persist en dos fases**: guarda la `Decision` sin ganador (para obtener ids de opción generados por la DB), corre el algoritmo en memoria, resuelve el índice ganador al id ya persistido, y recién ahí guarda de nuevo con el ganador.
 - **`adapter/in/web`** — `DecisionController`/`AuthController` (API REST JSON bajo `/api/decisions` y `/auth`), y `AppController`/`LoginController` (flujos Thymeleaf server-rendered para `/`, `/form`, `/decide`, `/register`, `/login`).

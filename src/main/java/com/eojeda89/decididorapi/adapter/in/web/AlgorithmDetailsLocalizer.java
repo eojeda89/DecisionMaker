@@ -6,16 +6,20 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 /**
  * Resuelve a texto localizado las claves de mensaje que los algoritmos de
  * dominio devuelven en los campos "algorithm" y "description" de
- * {@link AlgorithmDetails} (ej. "algorithm.dice-roll.name"). Los algoritmos
- * en sí son clases puras sin dependencias de Spring; esta resolución vive
- * acá, en la capa de adaptador web, para no acoplar el dominio al framework.
+ * {@link AlgorithmDetails} (ej. "algorithm.dice-roll.name"), y en cada paso
+ * de la narrativa "steps" (Fase 3.7: {round, descriptionKey, args}, tipo
+ * MessageFormat). Los algoritmos en sí son clases puras sin dependencias de
+ * Spring; esta resolución vive acá, en la capa de adaptador web, para no
+ * acoplar el dominio al framework.
  */
 @Component
 @RequiredArgsConstructor
@@ -23,6 +27,7 @@ public class AlgorithmDetailsLocalizer {
 
     private static final String ALGORITHM_KEY = "algorithm";
     private static final String DESCRIPTION_KEY = "description";
+    private static final String STEPS_KEY = "steps";
 
     private final MessageSource messageSource;
 
@@ -32,6 +37,7 @@ public class AlgorithmDetailsLocalizer {
         Map<String, Object> resolved = new LinkedHashMap<>(details.getProperties());
         resolveInPlace(resolved, ALGORITHM_KEY, locale);
         resolveInPlace(resolved, DESCRIPTION_KEY, locale);
+        resolveSteps(resolved, locale);
         return resolved;
     }
 
@@ -42,5 +48,27 @@ public class AlgorithmDetailsLocalizer {
         if (details.get(key) instanceof String code) {
             details.put(key, messageSource.getMessage(code, null, code, locale));
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void resolveSteps(Map<String, Object> details, Locale locale) {
+        if (!(details.get(STEPS_KEY) instanceof List<?> rawSteps)) return;
+
+        List<Map<String, Object>> resolvedSteps = new ArrayList<>();
+        for (Object rawStep : rawSteps) {
+            if (!(rawStep instanceof Map<?, ?> stepMap)) continue;
+            Map<String, Object> resolvedStep = new LinkedHashMap<>();
+            Object round = stepMap.get("round");
+            if (round != null) resolvedStep.put("round", round);
+
+            Object descriptionKey = stepMap.get("descriptionKey");
+            if (descriptionKey instanceof String key) {
+                Object argsValue = stepMap.get("args");
+                Object[] args = argsValue instanceof List<?> argList ? argList.toArray() : new Object[0];
+                resolvedStep.put("text", messageSource.getMessage(key, args, key, locale));
+            }
+            resolvedSteps.add(resolvedStep);
+        }
+        details.put(STEPS_KEY, resolvedSteps);
     }
 }

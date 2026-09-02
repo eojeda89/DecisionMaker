@@ -32,6 +32,7 @@ public class FisherYatesSelection implements DecisionAlgorithm {
                 "description", "algorithm.fisher-yates-selection.description",
                 "custom_optionsCount", String.valueOf(options.size()),
                 "custom_shuffledOptions", shuffledOptions,
+                "steps", NarrativeSteps.singleStep("narrative.fisher-yates-selection", shuffledList.getFirst().getValue()),
                 "winnerIndex", winnerIndex
         );
         return AlgorithmDetails.of(details);

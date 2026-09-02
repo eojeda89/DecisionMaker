@@ -19,6 +19,13 @@
         <p><span th:text="#{result.algorithmChosen}">El algoritmo elegido fue:</span> <span th:text="${algorithm}"></span></p>
         <p><span th:text="#{result.algorithmDescription}">Descripción del algoritmo:</span> <span th:text="${description}"></span></p>
 
+        <div th:if="${steps != null and !steps.isEmpty()}">
+            <h3 th:text="#{result.narrativeHeading}">Cómo se decidió, paso a paso:</h3>
+            <ol>
+                <li th:each="step : ${steps}" th:text="${step.text}"></li>
+            </ol>
+        </div>
+
         <!-- Opcional: mostrar detalles adicionales del algoritmo -->
         <h3 th:text="#{result.detailsHeading}">Detalles de la Decisión:</h3>
         <ul>

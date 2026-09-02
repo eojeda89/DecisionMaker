@@ -9,7 +9,8 @@ public enum AlgorithmType {
     FORTUNE_WHEEL("fortune-wheel", "Rueda de la fortuna"),
     RANDOM_WEIGHTED("random-weighted", "Aleatorio ponderado"),
     RANDOMIZED_VOTING("randomized-voting", "Votación aleatorizada"),
-    FISHER_YATES_SELECTION("fisher-yates-selection", "Selección Fisher-Yates");
+    FISHER_YATES_SELECTION("fisher-yates-selection", "Selección Fisher-Yates"),
+    BRACKET_TOURNAMENT("bracket-tournament", "Torneo eliminatorio");
 
     private final String code;
     private final String uiName;

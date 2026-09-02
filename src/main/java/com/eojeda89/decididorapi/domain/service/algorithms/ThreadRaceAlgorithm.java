@@ -28,11 +28,13 @@ public class ThreadRaceAlgorithm implements DecisionAlgorithm {
                 });
             }
             Future<Integer> first = cs.take();
+            int winnerIndex = first.get();
             Map<String, Object> details = Map.of(
                     "algorithm", "algorithm.thread-race.name",
                     "description", "algorithm.thread-race.description",
                     "custom_optionsCount", String.valueOf(options.size()),
-                    "winnerIndex", first.get()
+                    "steps", NarrativeSteps.singleStep("narrative.thread-race", options.get(winnerIndex).getValue()),
+                    "winnerIndex", winnerIndex
             );
             return AlgorithmDetails.of(details);
         } catch (InterruptedException e) {

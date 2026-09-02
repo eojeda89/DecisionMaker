@@ -35,6 +35,11 @@ public class DecisionAlgorithmConfig {
         return new FisherYatesSelection();
     }
 
+    @Bean(name = "bracketTournamentAlgorithm")
+    public DecisionAlgorithm bracketTournamentAlgorithm() {
+        return new BracketTournamentAlgorithm();
+    }
+
     @Bean
     public Map<AlgorithmType, DecisionAlgorithm> decisionAlgorithms(
             @Qualifier("threadRaceAlgorithm") DecisionAlgorithm threadRace,
@@ -42,7 +47,8 @@ public class DecisionAlgorithmConfig {
             @Qualifier("fortuneWheelAlgorithm") DecisionAlgorithm fortuneWheel,
             @Qualifier("randomWeightedAlgorithm") DecisionAlgorithm randomWeighted,
             @Qualifier("randomizedVotingAlgorithm") DecisionAlgorithm randomizedVoting,
-            @Qualifier("fisherYatesSelectionAlgorithm") DecisionAlgorithm fisherYatesSelection
+            @Qualifier("fisherYatesSelectionAlgorithm") DecisionAlgorithm fisherYatesSelection,
+            @Qualifier("bracketTournamentAlgorithm") DecisionAlgorithm bracketTournament
     ) {
         Map<AlgorithmType, DecisionAlgorithm> map = new EnumMap<>(AlgorithmType.class);
         map.put(AlgorithmType.THREAD_RACE, threadRace);
@@ -51,6 +57,7 @@ public class DecisionAlgorithmConfig {
         map.put(AlgorithmType.RANDOM_WEIGHTED, randomWeighted);
         map.put(AlgorithmType.RANDOMIZED_VOTING, randomizedVoting);
         map.put(AlgorithmType.FISHER_YATES_SELECTION, fisherYatesSelection);
+        map.put(AlgorithmType.BRACKET_TOURNAMENT, bracketTournament);
         return map;
     }
 }

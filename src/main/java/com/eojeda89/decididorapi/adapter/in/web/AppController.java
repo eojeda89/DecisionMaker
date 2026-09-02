@@ -77,6 +77,7 @@ public class AppController {
         model.addAttribute("winningOptionValue", result.getWinningOptionValue());
         model.addAttribute("algorithm", resolvedDetails.get("algorithm"));
         model.addAttribute("description", resolvedDetails.get("description"));
+        model.addAttribute("steps", resolvedDetails.get("steps"));
         String prefijo = "custom_";
         Map<String, Object> customDetails = resolvedDetails.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(prefijo))

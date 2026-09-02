@@ -1,10 +1,44 @@
 /* src/main/resources/static/css/global.css */
 
+/* Fase 4.4: paleta como variables CSS. El tema por defecto (claro) vive en
+   :root; el oscuro pisa esas variables bajo [data-theme="dark"], que
+   js/dark-mode.js setea en <html> antes de que se pinte la página (según
+   preferencia guardada o prefers-color-scheme del sistema). */
+:root {
+    --bg: #f0f2f5;
+    --surface: #fff;
+    --text: #333;
+    --heading: #1a1a2e;
+    --link: #007bff;
+    --link-hover: #0056b3;
+    --label: #555;
+    --border: #ccc;
+    --focus-ring: rgba(0, 123, 255, 0.25);
+    --accent: #007bff;
+    --accent-hover: #0056b3;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --bg: #121212;
+    --surface: #1e1e2e;
+    --text: #e0e0e0;
+    --heading: #ffffff;
+    --link: #4dabf7;
+    --link-hover: #74c0fc;
+    --label: #b0b0c0;
+    --border: #444;
+    --focus-ring: rgba(77, 171, 247, 0.35);
+    --accent: #4dabf7;
+    --accent-hover: #339af0;
+    --shadow: rgba(0, 0, 0, 0.5);
+}
+
 /* Estilos de fuente y fondo para todo el cuerpo de la página */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f0f2f5;
-    color: #333;
+    background-color: var(--bg);
+    color: var(--text);
     margin: 0;
     padding: 0;
     line-height: 1.6;
@@ -12,22 +46,24 @@ body {
     justify-content: center; /* Nuevo: Centra horizontalmente */
     align-items: center; /* Nuevo: Centra verticalmente */
     min-height: 100vh; /* Nuevo: Ocupa toda la altura de la ventana */
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Contenedor central para las páginas principales */
 .container {
-    background-color: #fff;
+    background-color: var(--surface);
     padding: 2.5rem;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--shadow);
     width: 100%;
     max-width: 500px;
     box-sizing: border-box;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Estilos para encabezados */
 h1 {
-    color: #1a1a2e;
+    color: var(--heading);
     font-size: 2rem;
     margin-top: 0;
     margin-bottom: 2rem;
@@ -36,13 +72,13 @@ h1 {
 
 /* Estilos para enlaces (a) */
 a {
-    color: #007bff;
+    color: var(--link);
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 a:hover {
-    color: #0056b3;
+    color: var(--link-hover);
     text-decoration: underline;
 }
 
@@ -62,7 +98,7 @@ form > div {
 label {
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #555;
+    color: var(--label);
     text-align: left;
 }
 
@@ -72,10 +108,12 @@ input[type="email"],
 select {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border);
     border-radius: 8px;
     font-size: 1rem;
     box-sizing: border-box;
+    background-color: var(--surface);
+    color: var(--text);
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -84,12 +122,12 @@ input[type="password"]:focus,
 input[type="email"]:focus,
 select:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 button {
-    background-color: #007bff;
+    background-color: var(--accent);
     color: white;
     padding: 0.75rem 1.5rem;
     border: none;
@@ -102,17 +140,184 @@ button {
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: var(--accent-hover);
 }
 
 .logout {
     position: absolute;
     top: 20px;
     right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .input-error {
     border: 2px solid red;
+}
+
+/* Fase 4.4: botón de modo oscuro (icono-only, ver js/dark-mode.js) */
+.theme-toggle {
+    width: auto;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+}
+
+.theme-toggle:hover {
+    background-color: var(--bg);
+}
+
+/* Fase 4.1: se aplica a la sección de resultado mientras la animación de
+   ruleta/dado todavía no reveló el ganador. */
+.hidden-until-reveal {
+    display: none;
+}
+
+/* --- Ruleta animada (Fase 4.1) --- */
+.wheel-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.wheel-pointer {
+    font-size: 1.8rem;
+    line-height: 1;
+    margin-bottom: -6px;
+    z-index: 2;
+    color: var(--heading);
+}
+
+.wheel-outer {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 6px var(--surface), 0 0 0 8px var(--border), 0 6px 16px var(--shadow);
+    overflow: hidden;
+}
+
+.wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    position: relative;
+    transform: rotate(0deg);
+}
+
+.wheel-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90px;
+    margin-left: -45px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transform-origin: center top;
+}
+
+/* --- Dado animado (Fase 4.1) --- */
+.dice-animation {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.dice {
+    font-size: 4rem;
+    line-height: 1;
+    display: inline-block;
+}
+
+.dice-bounce {
+    animation: dice-bounce 0.1s ease-in-out;
+}
+
+@keyframes dice-bounce {
+    0% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.15) rotate(15deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+/* --- Confeti (Fase 4.5) --- */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.confetti-piece {
+    position: absolute;
+    top: -12px;
+    width: 8px;
+    height: 14px;
+    opacity: 0.9;
+    animation-name: confetti-fall;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+@keyframes confetti-fall {
+    to {
+        transform: translateY(105vh) rotate(360deg);
+        opacity: 0.3;
+    }
+}
+
+/* --- Página de estadísticas (Fase 4.2) --- */
+.stats-empty {
+    text-align: center;
+    color: var(--label);
+}
+
+.stats-section {
+    margin-top: 1.5rem;
+}
+
+.stats-section h3 {
+    color: var(--heading);
+    margin-bottom: 0.75rem;
+}
+
+.stats-bar-row {
+    margin-bottom: 0.6rem;
+}
+
+.stats-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+}
+
+.stats-bar-track {
+    background-color: var(--bg);
+    border-radius: 6px;
+    overflow: hidden;
+    height: 10px;
+}
+
+.stats-bar-fill {
+    background-color: var(--accent);
+    height: 100%;
+    border-radius: 6px;
 }
 
 @media (max-width: 600px) {
@@ -137,5 +342,9 @@ button:hover {
     button {
         font-size: 1rem;
         padding: 0.6rem 1rem;
+    }
+    .wheel-outer {
+        width: 180px;
+        height: 180px;
     }
 }

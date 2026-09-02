@@ -2,19 +2,41 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <script th:src="@{/js/dark-mode.js}"></script>
     <title th:text="#{result.title}">Resultado de la Decisión</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body>
+<body th:attr="data-algorithm-code=${algorithmCode}">
 <div class="logout">
+    <button id="dark-mode-toggle" type="button" class="theme-toggle" th:title="#{nav.toggleTheme}">🌙</button>
     <a th:href="@{/logout}" th:text="#{nav.logout}">Cerrar Sesión</a>
 </div>
 <div class="container">
     <h1 th:text="#{result.heading}">¡El Destino ha Hablado!</h1>
 
-    <div>
+    <!-- Fase 4.1: ruleta animada, solo cuando el algoritmo fue fortune-wheel -->
+    <div id="wheel-animation" class="wheel-animation"
+         th:if="${algorithmCode == 'fortune-wheel'}"
+         th:attr="data-angle=${winningAngleDegrees}">
+        <div class="wheel-pointer">▼</div>
+        <div class="wheel-outer">
+            <div class="wheel" id="wheel" th:style="'background: ' + ${wheelGradientCss} + ';'">
+                <span class="wheel-label" th:each="label : ${wheelLabels}"
+                      th:text="${label.text}"
+                      th:style="${label.style}"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fase 4.1: dado animado, solo cuando el algoritmo fue dice-roll -->
+    <div id="dice-animation" class="dice-animation" th:if="${algorithmCode == 'dice-roll'}">
+        <div class="dice" id="dice">🎲</div>
+    </div>
+
+    <div id="result-content"
+         th:classappend="${algorithmCode == 'fortune-wheel' or algorithmCode == 'dice-roll'} ? 'hidden-until-reveal' : ''">
         <p><span th:text="#{result.winningOption}">La opción ganadora es:</span> <strong><span th:text="${winningOptionValue}"></span></strong></p>
         <p><span th:text="#{result.algorithmChosen}">El algoritmo elegido fue:</span> <span th:text="${algorithm}"></span></p>
         <p><span th:text="#{result.algorithmDescription}">Descripción del algoritmo:</span> <span th:text="${description}"></span></p>
@@ -35,7 +57,9 @@
         </ul>
     </div>
 
-    <a href="/form" th:text="#{result.backLink}">Volver a Decidir</a>
+    <a href="/form" th:text="#{result.backLink}">Volver a Decidir</a> ·
+    <a href="/stats" th:text="#{nav.stats}">Mis estadísticas</a>
 </div>
+<script th:src="@{/js/decision-result.js}"></script>
 </body>
 </html>

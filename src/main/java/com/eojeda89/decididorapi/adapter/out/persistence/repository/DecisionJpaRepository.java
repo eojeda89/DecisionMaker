@@ -33,4 +33,10 @@ public interface DecisionJpaRepository extends JpaRepository<DecisionEntity, Lon
     // colección lazy -> LazyInitializationException.
     @Query("SELECT DISTINCT d FROM DecisionEntity d LEFT JOIN FETCH d.options WHERE d.id IN :ids")
     List<DecisionEntity> findByIdInWithOptions(@Param("ids") List<Long> ids);
+
+    // Fase 4.2 (estadísticas): trae TODO el historial del usuario (sin
+    // paginar, ver DecisionRepository#findAllByUser) con sus opciones ya
+    // cargadas -- igual patrón JOIN FETCH + DISTINCT que arriba.
+    @Query("SELECT DISTINCT d FROM DecisionEntity d LEFT JOIN FETCH d.options WHERE d.user = :user ORDER BY d.id DESC")
+    List<DecisionEntity> findAllByUserWithOptions(@Param("user") UserEntity user);
 }

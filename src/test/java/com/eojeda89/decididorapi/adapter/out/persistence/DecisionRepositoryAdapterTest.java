@@ -126,4 +126,31 @@ class DecisionRepositoryAdapterTest {
 
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    void findAllByUser_HappyPath() {
+        UserId userId = UserId.of(1L);
+        DecisionEntity entity1 = mock(DecisionEntity.class);
+        DecisionEntity entity2 = mock(DecisionEntity.class);
+        Decision decision1 = mock(Decision.class);
+        Decision decision2 = mock(Decision.class);
+
+        when(jpaRepository.findAllByUserWithOptions(any(UserEntity.class))).thenReturn(List.of(entity1, entity2));
+        when(mapper.toDomain(entity1)).thenReturn(decision1);
+        when(mapper.toDomain(entity2)).thenReturn(decision2);
+
+        List<Decision> result = adapter.findAllByUser(userId);
+
+        assertEquals(List.of(decision1, decision2), result);
+        verify(jpaRepository).findAllByUserWithOptions(argThat(u -> u.getId().equals(1L)));
+    }
+
+    @Test
+    void findAllByUser_NoDecisions_ReturnsEmptyList() {
+        when(jpaRepository.findAllByUserWithOptions(any(UserEntity.class))).thenReturn(List.of());
+
+        List<Decision> result = adapter.findAllByUser(UserId.of(2L));
+
+        assertTrue(result.isEmpty());
+    }
 }

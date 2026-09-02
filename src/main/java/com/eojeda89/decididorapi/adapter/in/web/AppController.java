@@ -1,8 +1,10 @@
 package com.eojeda89.decididorapi.adapter.in.web;
 
+import com.eojeda89.decididorapi.application.port.in.GetUserStatsUseCase;
 import com.eojeda89.decididorapi.application.port.in.RegisterUserUseCase;
 import com.eojeda89.decididorapi.application.port.in.command.DecideCommand;
 import com.eojeda89.decididorapi.application.port.in.command.RegisterUserCommand;
+import com.eojeda89.decididorapi.application.port.in.result.UserStatsResult;
 import com.eojeda89.decididorapi.application.port.out.UserRepository;
 import com.eojeda89.decididorapi.application.service.DecisionService;
 import com.eojeda89.decididorapi.common.exception.Exceptions;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,10 +30,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AppController {
 
+    // Fase 4.1: paleta cíclica para dibujar los gajos de la ruleta (no tiene
+    // relación con las opciones en sí, solo variedad visual).
+    private static final List<String> WHEEL_COLORS = List.of(
+            "#ef476f", "#ffd166", "#06d6a0", "#118ab2", "#073b4c", "#f78c6b");
+
     private final DecisionService decisionService;
     private final UserRepository userRepository;
     private final RegisterUserUseCase registerUserUseCase;
     private final AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
+    private final GetUserStatsUseCase getUserStatsUseCase;
 
     @GetMapping("/login")
     public String login() {
@@ -91,7 +101,88 @@ public class AppController {
                         Map.Entry::getValue
                 ));
         model.addAttribute("customDetails", customDetails);
+
+        // Fase 4.1: la vista solo necesita saber qué algoritmo corrió para
+        // decidir si anima ruleta/dado antes de revelar el resultado.
+        model.addAttribute("algorithmCode", algoritmo);
+        if (AlgorithmType.FORTUNE_WHEEL.getCode().equals(algoritmo)) {
+            addWheelAnimationAttributes(model, opciones, resolvedDetails.get("winningAngleDegrees"));
+        }
+
         return "decision-result";
+    }
+
+    // Arma el conic-gradient (un gajo por opción, mismo orden que el índice
+    // que usa FortuneWheelAlgorithm) y la posición de cada etiqueta, para que
+    // el JS de la vista solo tenga que rotar la rueda ya dibujada hasta el
+    // ángulo real devuelto por el algoritmo.
+    private void addWheelAnimationAttributes(Model model, List<String> opciones, Object winningAngle) {
+        int n = opciones.size();
+        double segment = 360.0 / n;
+        StringBuilder gradient = new StringBuilder("conic-gradient(");
+        List<Map<String, Object>> labels = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            String color = WHEEL_COLORS.get(i % WHEEL_COLORS.size());
+            double start = i * segment;
+            double end = start + segment;
+            gradient.append(color).append(" ").append(start).append("deg ").append(end).append("deg");
+            if (i < n - 1) gradient.append(", ");
+
+            double midAngle = start + segment / 2;
+            Map<String, Object> label = new LinkedHashMap<>();
+            label.put("text", opciones.get(i));
+            label.put("style", String.format(java.util.Locale.ROOT,
+                    "transform: rotate(%.4fdeg) translateY(-100px) rotate(%.4fdeg);", midAngle, -midAngle));
+            labels.add(label);
+        }
+        gradient.append(")");
+
+        model.addAttribute("wheelGradientCss", gradient.toString());
+        model.addAttribute("wheelLabels", labels);
+        model.addAttribute("winningAngleDegrees", winningAngle);
+    }
+
+    @GetMapping("/stats")
+    public String stats(Model model) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new Exceptions.ResourceNotFoundException("User not found"));
+        model.addAttribute("username", username);
+
+        UserStatsResult stats = getUserStatsUseCase.getStats(user.getId());
+        model.addAttribute("totalDecisions", stats.getTotalDecisions());
+        model.addAttribute("mostUsedAlgorithmName",
+                stats.getMostUsedAlgorithm() != null ? stats.getMostUsedAlgorithm().getUiName() : null);
+        model.addAttribute("mostWonOptionValue", stats.getMostWonOptionValue());
+        model.addAttribute("mostWonOptionCount", stats.getMostWonOptionCount());
+
+        long maxAlgorithmCount = stats.getDecisionsByAlgorithm().values().stream()
+                .mapToLong(Long::longValue).max().orElse(0);
+        List<Map<String, Object>> algorithmBreakdown = stats.getDecisionsByAlgorithm().entrySet().stream()
+                .sorted(Map.Entry.<AlgorithmType, Long>comparingByValue().reversed())
+                .map(entry -> {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("name", entry.getKey().getUiName());
+                    row.put("count", entry.getValue());
+                    row.put("percent", maxAlgorithmCount == 0 ? 0 : (entry.getValue() * 100 / maxAlgorithmCount));
+                    return row;
+                })
+                .toList();
+        model.addAttribute("algorithmBreakdown", algorithmBreakdown);
+
+        long maxWinCount = stats.getTopWinningOptions().values().stream()
+                .mapToLong(Long::longValue).max().orElse(0);
+        List<Map<String, Object>> topWinningOptions = stats.getTopWinningOptions().entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    row.put("value", entry.getKey());
+                    row.put("count", entry.getValue());
+                    row.put("percent", maxWinCount == 0 ? 0 : (entry.getValue() * 100 / maxWinCount));
+                    return row;
+                })
+                .toList();
+        model.addAttribute("topWinningOptions", topWinningOptions);
+
+        return "stats";
     }
 
     @GetMapping("/register")

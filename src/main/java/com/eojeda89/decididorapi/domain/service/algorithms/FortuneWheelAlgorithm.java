@@ -23,16 +23,19 @@ public class FortuneWheelAlgorithm implements DecisionAlgorithm {
         double startDegree = index * segment;
         double endDegree = startDegree + segment;
 
-        Map<String, Object> details = Map.of(
-                "algorithm", "algorithm.fortune-wheel.name",
-                "description", "algorithm.fortune-wheel.description",
-                "custom_optionsCount", String.valueOf(options.size()),
-                "custom_winningAngle", String.format("%.2f degrees", angle),
-                "custom_segmentSize", String.format("%.2f degrees", segment),
-                "custom_winningSegmentSize", String.format("%.2f° - %.2f°", startDegree, endDegree),
-                "steps", NarrativeSteps.singleStep("narrative.fortune-wheel", String.format("%.0f", angle), options.get(index).getValue()),
-                "winnerIndex", index
-        );
+        Map<String, Object> details = new java.util.LinkedHashMap<>();
+        details.put("algorithm", "algorithm.fortune-wheel.name");
+        details.put("description", "algorithm.fortune-wheel.description");
+        details.put("custom_optionsCount", String.valueOf(options.size()));
+        details.put("custom_winningAngle", String.format("%.2f degrees", angle));
+        details.put("custom_segmentSize", String.format("%.2f degrees", segment));
+        details.put("custom_winningSegmentSize", String.format("%.2f° - %.2f°", startDegree, endDegree));
+        details.put("steps", NarrativeSteps.singleStep("narrative.fortune-wheel", String.format("%.0f", angle), options.get(index).getValue()));
+        // Sin prefijo "custom_": no se muestra en la lista genérica de detalles
+        // (Fase 4.1), la consume directamente AppController para animar la
+        // ruleta hasta el ángulo real devuelto acá.
+        details.put("winningAngleDegrees", angle);
+        details.put("winnerIndex", index);
         return AlgorithmDetails.of(details);
     }
 }

@@ -62,4 +62,11 @@ public class DecisionRepositoryAdapter implements DecisionRepository {
     public Optional<Decision> findByShareCode(String shareCode) {
         return jpaRepository.findByShareCode(shareCode).map(mapper::toDomain);
     }
+
+    @Override
+    public List<Decision> findAllByUser(UserId userId) {
+        UserEntity user = new UserEntity();
+        user.setId(userId.value());
+        return jpaRepository.findAllByUserWithOptions(user).stream().map(mapper::toDomain).toList();
+    }
 }

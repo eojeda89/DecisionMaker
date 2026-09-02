@@ -56,6 +56,24 @@ class FortuneWheelAlgorithmTest {
     }
 
     @Test
+    void chooseWinnerIndex_ReturnsWinningAngleDegreesConsistentWithWinnerIndex() {
+        // Fase 4.1: la vista usa este campo (sin prefijo "custom_", no
+        // formateado) para animar la ruleta girando hasta el ángulo real.
+        List<Option> options = List.of(mock(Option.class), mock(Option.class), mock(Option.class), mock(Option.class));
+
+        for (int i = 0; i < 50; i++) {
+            AlgorithmDetails details = algorithm.chooseWinnerIndex(options);
+            double angle = details.get("winningAngleDegrees", Double.class);
+            int index = details.get("winnerIndex", Integer.class);
+
+            assertTrue(angle >= 0.0 && angle < 360.0, "Ángulo fuera de rango: " + angle);
+            double segment = 360.0 / options.size();
+            assertEquals(index, Math.min((int) Math.floor(angle / segment), options.size() - 1),
+                    "El índice ganador debe corresponder al segmento del ángulo devuelto");
+        }
+    }
+
+    @Test
     void chooseWinnerIndex_OverManyTrials_DistributionIsApproximatelyUniform() {
         // Los segmentos de la ruleta son del mismo tamaño (360/n grados), así
         // que cada opción debería ganar ~1/n de las veces.

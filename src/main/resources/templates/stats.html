@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script th:src="@{/js/dark-mode.js}"></script>
+    <title th:text="#{stats.title}">Mis Estadísticas</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="logout">
+    <button id="dark-mode-toggle" type="button" class="theme-toggle" th:title="#{nav.toggleTheme}">🌙</button>
+    <a th:href="@{/logout}" th:text="#{nav.logout}">Cerrar Sesión</a>
+</div>
+<div class="container">
+    <h1 th:text="#{stats.heading}">Mis Estadísticas</h1>
+
+    <div th:if="${totalDecisions == 0}" class="stats-empty">
+        <p th:text="#{stats.noData}">Todavía no tomaste ninguna decisión.</p>
+        <a th:href="@{/form}" th:text="#{welcome.goToForm}">Ir al formulario de decisión</a>
+    </div>
+
+    <div th:unless="${totalDecisions == 0}">
+        <p><span th:text="#{stats.totalDecisions}">Decisiones tomadas:</span> <strong th:text="${totalDecisions}"></strong></p>
+        <p th:if="${mostUsedAlgorithmName != null}">
+            <span th:text="#{stats.mostUsedAlgorithm}">Algoritmo favorito:</span> <strong th:text="${mostUsedAlgorithmName}"></strong>
+        </p>
+        <p th:if="${mostWonOptionValue != null}">
+            <span th:text="#{stats.mostWonOption}">Opción más ganadora:</span>
+            <strong th:text="${mostWonOptionValue}"></strong>
+            (<span th:text="${mostWonOptionCount}"></span>)
+        </p>
+
+        <div class="stats-section">
+            <h3 th:text="#{stats.algorithmBreakdownHeading}">Uso por algoritmo</h3>
+            <div class="stats-bar-row" th:each="row : ${algorithmBreakdown}">
+                <div class="stats-bar-label">
+                    <span th:text="${row.name}"></span>
+                    <span th:text="${row.count}"></span>
+                </div>
+                <div class="stats-bar-track">
+                    <div class="stats-bar-fill" th:style="'width: ' + ${row.percent} + '%;'"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section" th:if="${!topWinningOptions.isEmpty()}">
+            <h3 th:text="#{stats.topOptionsHeading}">Opciones que más ganaron</h3>
+            <div class="stats-bar-row" th:each="row : ${topWinningOptions}">
+                <div class="stats-bar-label">
+                    <span th:text="${row.value}"></span>
+                    <span th:text="${row.count}"></span>
+                </div>
+                <div class="stats-bar-track">
+                    <div class="stats-bar-fill" th:style="'width: ' + ${row.percent} + '%;'"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="/form" th:text="#{result.backLink}">Volver a Decidir</a>
+</div>
+</body>
+</html>

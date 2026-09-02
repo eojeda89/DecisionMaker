@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -102,5 +103,27 @@ class DecisionRepositoryAdapterTest {
     @Test
     void findByUser_NullUserId_ThrowsException() {
         assertThrows(NullPointerException.class, () -> adapter.findByUser(null, PageRequest.of(0, 20)));
+    }
+
+    @Test
+    void findByShareCode_HappyPath() {
+        DecisionEntity entity = mock(DecisionEntity.class);
+        Decision decision = mock(Decision.class);
+        when(jpaRepository.findByShareCode("ABCDEFGH")).thenReturn(Optional.of(entity));
+        when(mapper.toDomain(entity)).thenReturn(decision);
+
+        Optional<Decision> result = adapter.findByShareCode("ABCDEFGH");
+
+        assertTrue(result.isPresent());
+        assertEquals(decision, result.get());
+    }
+
+    @Test
+    void findByShareCode_NotFound_ReturnsEmpty() {
+        when(jpaRepository.findByShareCode("NOEXISTE")).thenReturn(Optional.empty());
+
+        Optional<Decision> result = adapter.findByShareCode("NOEXISTE");
+
+        assertTrue(result.isEmpty());
     }
 }

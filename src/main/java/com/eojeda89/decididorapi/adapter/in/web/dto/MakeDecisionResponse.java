@@ -20,6 +20,9 @@ public class MakeDecisionResponse {
     private String algorithmType; // code
     private Map<String, Object> algorithmDetails;
     private Instant createdAt;
+    // Código para GET /api/decisions/shared/{shareCode} (sin login). No es
+    // información sensible: a propósito no lleva ningún dato del dueño.
+    private String shareCode;
 
     public static MakeDecisionResponse fromResult(DecisionResult result) {
         MakeDecisionResponse resp = new MakeDecisionResponse();
@@ -29,6 +32,7 @@ public class MakeDecisionResponse {
         resp.algorithmType = result.getAlgorithmType() != null ? result.getAlgorithmType().getCode() : null;
         resp.algorithmDetails = result.getAlgorithmDetails() != null ? result.getAlgorithmDetails().getProperties() : null;
         resp.createdAt = result.getCreatedAt();
+        resp.shareCode = result.getShareCode();
         return resp;
     }
 
@@ -40,6 +44,7 @@ public class MakeDecisionResponse {
         resp.algorithmType = decision.getAlgorithmType() != null ? decision.getAlgorithmType().getCode() : null;
         resp.algorithmDetails = decision.getAlgorithmDetails() != null ? decision.getAlgorithmDetails().getProperties() : null;
         resp.createdAt = decision.getCreatedAt();
+        resp.shareCode = decision.getShareCode();
         return resp;
     }
 }

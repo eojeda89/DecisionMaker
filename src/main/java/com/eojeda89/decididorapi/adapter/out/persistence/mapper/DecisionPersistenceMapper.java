@@ -29,6 +29,7 @@ public class DecisionPersistenceMapper {
         List<OptionEntity> optionEntities = toEntityOptions(decision.getOptions(), e);
         e.setOptions(optionEntities);
         e.setWinningOptionId(toLong(decision.getWinningOptionId()));
+        e.setShareCode(decision.getShareCode());
         return e;
     }
 
@@ -44,6 +45,7 @@ public class DecisionPersistenceMapper {
         }
         d.setWinningOptionId(toOptionId(entity.getWinningOptionId()));
         d.setOptions(toDomainOptions(entity.getOptions()));
+        d.setShareCode(entity.getShareCode());
         return d;
     }
 

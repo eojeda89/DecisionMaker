@@ -40,4 +40,10 @@ public class DecisionEntity {
 
     @Column(name = "winning_option_id")
     private Long winningOptionId;
+
+    // Fase 3.3: código corto para ver el resultado sin login (GET
+    // /api/decisions/shared/{code}). Único; nullable porque las filas ya
+    // existentes antes de esta columna no tienen uno asignado.
+    @Column(name = "share_code", unique = true)
+    private String shareCode;
 }

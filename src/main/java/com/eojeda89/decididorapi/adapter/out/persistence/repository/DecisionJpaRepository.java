@@ -9,8 +9,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DecisionJpaRepository extends JpaRepository<DecisionEntity, Long> {
+
+    // Solo una decisión, sin paginar: el JOIN FETCH acá es seguro (no hay
+    // límite de filas que Hibernate deba aplicar en memoria).
+    @Query("SELECT DISTINCT d FROM DecisionEntity d LEFT JOIN FETCH d.options WHERE d.shareCode = :shareCode")
+    Optional<DecisionEntity> findByShareCode(@Param("shareCode") String shareCode);
 
     // Paginar con un JOIN FETCH de una colección to-many no es seguro: Hibernate
     // no puede paginar en la base de datos y termina trayendo TODAS las filas

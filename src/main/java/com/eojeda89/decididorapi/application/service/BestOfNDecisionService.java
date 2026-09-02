@@ -60,6 +60,7 @@ public class BestOfNDecisionService implements MakeBestOfNDecisionUseCase {
                 .algorithmType(AlgorithmType.BEST_OF_N)
                 .options(options)
                 .createdAt(Instant.now())
+                .shareCode(ShareCodeGenerator.generate())
                 .build();
 
         int[] winsByOptionIndex = new int[options.size()];
@@ -98,6 +99,7 @@ public class BestOfNDecisionService implements MakeBestOfNDecisionUseCase {
                 .algorithmType(finalized.getAlgorithmType())
                 .algorithmDetails(finalized.getAlgorithmDetails())
                 .createdAt(finalized.getCreatedAt())
+                .shareCode(finalized.getShareCode())
                 .build();
     }
 

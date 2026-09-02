@@ -31,7 +31,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Rutas públicas
                         .requestMatchers("/auth/register", "/auth/login", "/actuator/health", "/v3/api-docs/**",
-                                "/swagger-ui/**", "/login", "/register", "/static/**", "/css/**").permitAll()
+                                "/swagger-ui/**", "/login", "/register", "/static/**", "/css/**",
+                                "/api/decisions/shared/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/info").permitAll()
                         .anyRequest().authenticated()
                 )

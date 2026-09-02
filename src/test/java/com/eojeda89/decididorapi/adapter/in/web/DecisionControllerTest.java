@@ -4,6 +4,7 @@ import com.eojeda89.decididorapi.adapter.in.web.dto.BestOfNRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionResponse;
 import com.eojeda89.decididorapi.application.port.in.GetDecisionHistoryUseCase;
+import com.eojeda89.decididorapi.application.port.in.GetSharedDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeBestOfNDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.command.BestOfNCommand;
@@ -47,6 +48,8 @@ class DecisionControllerTest {
     private MakeBestOfNDecisionUseCase makeBestOfNDecisionUseCase;
     @Mock
     private GetDecisionHistoryUseCase getDecisionHistoryUseCase;
+    @Mock
+    private GetSharedDecisionUseCase getSharedDecisionUseCase;
     @Mock
     private AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
     @Mock
@@ -164,6 +167,39 @@ class DecisionControllerTest {
             }
             controller.makeDecision(validRequest);
         });
+    }
+
+    @Test
+    void getSharedDecision_HappyPath_NoAuthenticationNeeded() {
+        // A propósito: este endpoint es público, no debe llamar a
+        // resolveAuthenticatedUserId() ni tocar el SecurityContext.
+        SecurityContextHolder.clearContext();
+        Decision decision = Decision.builder()
+                .id(DecisionId.of(1L))
+                .user(User.builder().id(UserId.of(99L)).username("owner").build())
+                .winningOptionId(OptionId.of(100L))
+                .options(List.of(new Option(OptionId.of(100L), "A"), new Option(OptionId.of(101L), "B")))
+                .algorithmType(AlgorithmType.THREAD_RACE)
+                .algorithmDetails(AlgorithmDetails.of(Map.of("winnerIndex", 0)))
+                .shareCode("ABCDEFGH")
+                .createdAt(Instant.now())
+                .build();
+        when(getSharedDecisionUseCase.getByShareCode("ABCDEFGH")).thenReturn(decision);
+
+        MakeDecisionResponse response = controller.getSharedDecision("ABCDEFGH");
+
+        assertEquals(1L, response.getDecisionId());
+        assertEquals(100L, response.getWinningOptionId());
+        assertEquals("ABCDEFGH", response.getShareCode());
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
+    void getSharedDecision_UnknownCode_ThrowsException() {
+        when(getSharedDecisionUseCase.getByShareCode("NOEXISTE"))
+                .thenThrow(new ResourceNotFoundException("Shared decision not found"));
+
+        assertThrows(ResourceNotFoundException.class, () -> controller.getSharedDecision("NOEXISTE"));
     }
 
     @Test

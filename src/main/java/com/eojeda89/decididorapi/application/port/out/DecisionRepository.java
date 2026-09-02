@@ -5,7 +5,10 @@ import com.eojeda89.decididorapi.domain.model.UserId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
+
 public interface DecisionRepository {
     Decision save(Decision decision);
     Page<Decision> findByUser(UserId userId, Pageable pageable);
+    Optional<Decision> findByShareCode(String shareCode);
 }

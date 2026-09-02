@@ -42,6 +42,7 @@ class DecisionPersistenceMapperTest {
         decision.setCreatedAt(Instant.parse("2024-01-01T00:00:00Z"));
         decision.setWinningOptionId(new OptionId(10L));
         decision.setOptions(options);
+        decision.setShareCode("ABCDEFGH");
 
         DecisionEntity entity = mapper.toEntity(decision);
 
@@ -54,6 +55,7 @@ class DecisionPersistenceMapperTest {
         assertEquals(10L, entity.getWinningOptionId());
         assertEquals(Date.valueOf("2024-01-01"), entity.getFechaDecision());
         assertEquals(42, entity.getDetallesAlgoritmo().get("seed"));
+        assertEquals("ABCDEFGH", entity.getShareCode());
     }
 
     @Test
@@ -102,6 +104,7 @@ class DecisionPersistenceMapperTest {
         entity.setFechaDecision(Date.valueOf("2024-01-01"));
         entity.setOptions(optionEntities);
         entity.setWinningOptionId(10L);
+        entity.setShareCode("ABCDEFGH");
 
         Decision decision = mapper.toDomain(entity);
 
@@ -114,6 +117,7 @@ class DecisionPersistenceMapperTest {
         assertEquals(10L, decision.getWinningOptionId().value());
         assertEquals(42, decision.getAlgorithmDetails().getProperties().get("seed"));
         assertEquals(Instant.parse("2024-01-01T00:00:00Z"), decision.getCreatedAt());
+        assertEquals("ABCDEFGH", decision.getShareCode());
     }
 
     @Test

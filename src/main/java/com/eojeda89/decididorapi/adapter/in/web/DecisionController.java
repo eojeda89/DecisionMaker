@@ -4,6 +4,7 @@ import com.eojeda89.decididorapi.adapter.in.web.dto.BestOfNRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionResponse;
 import com.eojeda89.decididorapi.application.port.in.GetDecisionHistoryUseCase;
+import com.eojeda89.decididorapi.application.port.in.GetSharedDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeBestOfNDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.command.BestOfNCommand;
@@ -45,6 +46,7 @@ public class DecisionController {
     private final MakeDecisionUseCase makeDecisionUseCase;
     private final MakeBestOfNDecisionUseCase makeBestOfNDecisionUseCase;
     private final GetDecisionHistoryUseCase getDecisionHistoryUseCase;
+    private final GetSharedDecisionUseCase getSharedDecisionUseCase;
     private final AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
     private final UserRepository userRepository;
 
@@ -80,6 +82,15 @@ public class DecisionController {
         DecisionResult result = makeBestOfNDecisionUseCase.decide(command);
         MakeDecisionResponse response = MakeDecisionResponse.fromResult(result);
         response.setAlgorithmDetails(algorithmDetailsLocalizer.localize(result.getAlgorithmDetails()));
+        return response;
+    }
+
+    @GetMapping("/shared/{shareCode}")
+    @Operation(summary = "Consulta una decisión compartida por su código", description = "Público, sin autenticación (Fase 3.3 \"salas compartidas\"): cualquiera con el código ve el mismo resultado y su explicación, para compartir sin convertirlo en una encuesta.")
+    public MakeDecisionResponse getSharedDecision(@PathVariable String shareCode) {
+        var decision = getSharedDecisionUseCase.getByShareCode(shareCode);
+        MakeDecisionResponse response = MakeDecisionResponse.fromDomain(decision);
+        response.setAlgorithmDetails(algorithmDetailsLocalizer.localize(decision.getAlgorithmDetails()));
         return response;
     }
 

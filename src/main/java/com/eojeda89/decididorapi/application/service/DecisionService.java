@@ -1,6 +1,7 @@
 package com.eojeda89.decididorapi.application.service;
 
 import com.eojeda89.decididorapi.application.port.in.GetDecisionHistoryUseCase;
+import com.eojeda89.decididorapi.application.port.in.GetSharedDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.command.DecideCommand;
 import com.eojeda89.decididorapi.application.port.in.result.DecisionResult;
@@ -20,7 +21,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class DecisionService implements MakeDecisionUseCase, GetDecisionHistoryUseCase {
+public class DecisionService implements MakeDecisionUseCase, GetDecisionHistoryUseCase, GetSharedDecisionUseCase {
 
     private final DecisionRepository decisionRepository;
     private final Map<AlgorithmType, DecisionAlgorithm> algorithms;
@@ -49,8 +50,13 @@ public class DecisionService implements MakeDecisionUseCase, GetDecisionHistoryU
         user.setId(command.getUserId());
 
         // Crear agregado Decision sin ganador todavía y sin detalles de algoritmo
-        Decision decision = new Decision(null, user, command.getAlgorithmType(),
-                null, options, null, Instant.now(), null);
+        Decision decision = Decision.builder()
+                .user(user)
+                .algorithmType(command.getAlgorithmType())
+                .options(options)
+                .createdAt(Instant.now())
+                .shareCode(ShareCodeGenerator.generate())
+                .build();
 
         // Elegir ganador por índice (sin depender de ids aún)
         AlgorithmDetails algorithmDetails = algorithm.chooseWinnerIndex(options);
@@ -79,6 +85,7 @@ public class DecisionService implements MakeDecisionUseCase, GetDecisionHistoryU
                 .algorithmType(finalized.getAlgorithmType())
                 .algorithmDetails(finalized.getAlgorithmDetails())
                 .createdAt(finalized.getCreatedAt())
+                .shareCode(finalized.getShareCode())
                 .build();
     }
 
@@ -87,5 +94,12 @@ public class DecisionService implements MakeDecisionUseCase, GetDecisionHistoryU
         Objects.requireNonNull(userId, "userId");
         Objects.requireNonNull(pageable, "pageable");
         return decisionRepository.findByUser(userId, pageable);
+    }
+
+    @Override
+    public Decision getByShareCode(String shareCode) {
+        Objects.requireNonNull(shareCode, "shareCode");
+        return decisionRepository.findByShareCode(shareCode)
+                .orElseThrow(() -> new Exceptions.ResourceNotFoundException("Shared decision not found"));
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -55,5 +56,10 @@ public class DecisionRepositoryAdapter implements DecisionRepository {
                 .toList();
 
         return new PageImpl<>(content, pageable, idsPage.getTotalElements());
+    }
+
+    @Override
+    public Optional<Decision> findByShareCode(String shareCode) {
+        return jpaRepository.findByShareCode(shareCode).map(mapper::toDomain);
     }
 }

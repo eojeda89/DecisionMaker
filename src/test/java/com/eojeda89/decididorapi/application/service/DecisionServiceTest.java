@@ -59,7 +59,8 @@ class DecisionServiceTest {
                 optionsWithIds,
                 null,
                 Instant.parse("2024-01-01T00:00:00Z"),
-                null
+                null,
+                "ABCDEFGH"
         );
         Decision finalized = new Decision(
                 new DecisionId(100L),
@@ -69,7 +70,8 @@ class DecisionServiceTest {
                 optionsWithIds,
                 new OptionId(11L),
                 Instant.parse("2024-01-01T00:00:00Z"),
-                null
+                null,
+                "ABCDEFGH"
         );
         when(decisionRepository.save(any())).thenReturn(persisted).thenReturn(finalized);
 
@@ -179,5 +181,34 @@ class DecisionServiceTest {
         DecisionService service = new DecisionService(decisionRepository, algorithms);
 
         assertThrows(NullPointerException.class, () -> service.listByUser(UserId.of(1L), null));
+    }
+
+    @Test
+    void getByShareCode_HappyPath() {
+        Map<AlgorithmType, DecisionAlgorithm> algorithms = Map.of();
+        DecisionService service = new DecisionService(decisionRepository, algorithms);
+        Decision decision = mock(Decision.class);
+        when(decisionRepository.findByShareCode("ABCDEFGH")).thenReturn(Optional.of(decision));
+
+        Decision result = service.getByShareCode("ABCDEFGH");
+
+        assertEquals(decision, result);
+    }
+
+    @Test
+    void getByShareCode_UnknownCode_ThrowsResourceNotFound() {
+        Map<AlgorithmType, DecisionAlgorithm> algorithms = Map.of();
+        DecisionService service = new DecisionService(decisionRepository, algorithms);
+        when(decisionRepository.findByShareCode("NOEXISTE")).thenReturn(Optional.empty());
+
+        assertThrows(Exceptions.ResourceNotFoundException.class, () -> service.getByShareCode("NOEXISTE"));
+    }
+
+    @Test
+    void getByShareCode_NullCode_ThrowsException() {
+        Map<AlgorithmType, DecisionAlgorithm> algorithms = Map.of();
+        DecisionService service = new DecisionService(decisionRepository, algorithms);
+
+        assertThrows(NullPointerException.class, () -> service.getByShareCode(null));
     }
 }

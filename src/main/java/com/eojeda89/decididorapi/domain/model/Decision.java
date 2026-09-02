@@ -22,6 +22,9 @@ public class Decision {
     private OptionId winningOptionId;
     private Instant createdAt;
     private Instant updatedAt;
+    // Fase 3.3 (salas compartidas): código corto para que cualquiera con el
+    // link vea este resultado sin login, vía GET /api/decisions/shared/{code}.
+    private String shareCode;
 
     public void addOption(Option option) {
         if (option == null) {

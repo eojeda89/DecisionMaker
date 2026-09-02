@@ -21,4 +21,5 @@ public class DecisionResult {
     private AlgorithmType algorithmType;
     private AlgorithmDetails algorithmDetails;
     private Instant createdAt;
+    private String shareCode;
 }

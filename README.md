@@ -115,8 +115,9 @@ Endpoints principales:
 - `POST /api/decisions` — toma una decisión para el usuario autenticado (requiere `Authorization: Bearer <token>`)
 - `POST /api/decisions/best-of-n` — decisión al "mejor de N" (3, 5 o 7 rondas), cada ronda con un algoritmo elegido al azar (o de un subconjunto indicado en `algorithms`); gana quien más rondas gane, con una ronda extra de desempate si hay empate en el primer puesto. Solo por API por ahora, sin formulario web dedicado.
 - `GET /api/decisions?page=&size=` — historial paginado de decisiones del usuario autenticado, más reciente primero (requiere `Authorization: Bearer <token>`). `page` default `0`, `size` default `20` (máximo `100`).
+- `GET /api/decisions/shared/{shareCode}` — **público, sin autenticación**: cualquiera con el código ve el mismo resultado y su explicación ("salas compartidas", Fase 3.3). Cada decisión creada devuelve su `shareCode` en la respuesta. No expone ningún dato del dueño.
 
-Ninguno de los endpoints de `/api/decisions` acepta un `userId` — quién decide/consulta se determina siempre del JWT, nunca de un valor que el cliente podría manipular.
+Ninguno de los endpoints autenticados de `/api/decisions` acepta un `userId` — quién decide/consulta se determina siempre del JWT, nunca de un valor que el cliente podría manipular.
 
 `/auth/login` y `/api/decisions` tienen rate limiting básico en memoria (por IP en `/auth/login`, por usuario autenticado en `/api/decisions`): 10 y 60 requests por minuto respectivamente. Al superarlo, responden `429 Too Many Requests`.
 

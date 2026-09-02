@@ -27,8 +27,8 @@ public class RandomizedVoting implements DecisionAlgorithm {
                 .orElse(-1);
 
         Map<String, Object> details = Map.of(
-                "algorithm", "Randomized Voting",
-                "description", "Randomly selects a winner from the options by simulating a voting process",
+                "algorithm", "Votación aleatorizada",
+                "description", "Se elige un ganador al azar simulando un proceso de votación con votos aleatorios.",
                 "custom_optionsCount", String.valueOf(options.size()),
                 "custom_votes", votes.values(),
                 "winnerIndex", winnerIndex

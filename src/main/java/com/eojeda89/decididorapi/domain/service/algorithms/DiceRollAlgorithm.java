@@ -16,8 +16,8 @@ public class DiceRollAlgorithm implements DecisionAlgorithm {
         Objects.requireNonNull(options, "options");
         if (options.size() < 2) throw new Exceptions.InvalidRequestException("At least 2 options are required");
         Map<String, Object> details = Map.of(
-                "algorithm", "Dice Roll",
-                "description", "Randomly selects a winner by rolling a dice",
+                "algorithm", "Lanzamiento de dados",
+                "description", "Se elige un ganador al azar lanzando un dado.",
                 "custom_optionsCount", String.valueOf(options.size()),
                 "winnerIndex", ThreadLocalRandom.current().nextInt(options.size())
         );

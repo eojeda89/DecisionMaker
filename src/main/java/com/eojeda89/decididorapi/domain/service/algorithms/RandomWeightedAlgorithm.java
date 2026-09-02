@@ -28,13 +28,15 @@ public class RandomWeightedAlgorithm implements DecisionAlgorithm {
         int r = ThreadLocalRandom.current().nextInt(1, total + 1);
         for (int i = 0; i < n; i++) {
             r -= weights.get(i);
-            if (r <= 0) winnerIndex = i;
+            if (r <= 0) {
+                winnerIndex = i;
+                break;
+            }
         }
-        if (winnerIndex > 0) winnerIndex = n - 1;
 
         Map<String, Object> details = Map.of(
-                "algorithm", "Random Weighted Selection",
-                "description", "Randomly selects a winner using weighted random selection",
+                "algorithm", "Aleatorio ponderado",
+                "description", "Se elige un ganador al azar mediante un sorteo ponderado por pesos aleatorios.",
                 "custom_optionsCount", String.valueOf(options.size()),
                 "custom_weights", weights.toString(),
                 "winnerIndex", winnerIndex

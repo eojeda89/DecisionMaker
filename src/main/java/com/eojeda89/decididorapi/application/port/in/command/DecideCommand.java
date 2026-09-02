@@ -19,4 +19,8 @@ public class DecideCommand {
     private AlgorithmType algorithmType;
     @NotBlank(message = "Options cannot be empty")
     private List<String> optionValues;
+    // Fase 3.4 (anti-repetición): si es true, reduce (sin eliminar) la
+    // chance de que gane la misma opción que ganó recientemente con esta
+    // misma lista de opciones. Default false: comportamiento sin cambios.
+    private boolean avoidRepeats;
 }

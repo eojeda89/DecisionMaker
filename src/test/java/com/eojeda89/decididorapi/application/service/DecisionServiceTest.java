@@ -211,4 +211,144 @@ class DecisionServiceTest {
 
         assertThrows(NullPointerException.class, () -> service.getByShareCode(null));
     }
+
+    // --- Fase 3.4: anti-repetición ---
+
+    @Test
+    void decide_AvoidRepeatsFalse_SkipsHistoryLookupEntirely() {
+        Map<AlgorithmType, DecisionAlgorithm> algorithms = Map.of(AlgorithmType.THREAD_RACE, algorithm);
+        DecisionService service = new DecisionService(decisionRepository, algorithms);
+        when(algorithm.chooseWinnerIndex(anyList())).thenReturn(AlgorithmDetails.of(Map.of("winnerIndex", 0)));
+        stubTwoPhaseSave();
+
+        DecideCommand command = DecideCommand.builder()
+                .userId(UserId.of(1L)).algorithmType(AlgorithmType.THREAD_RACE)
+                .optionValues(List.of("A", "B")).avoidRepeats(false)
+                .build();
+        service.decide(command);
+
+        verify(algorithm, times(1)).chooseWinnerIndex(anyList());
+        verify(decisionRepository, never()).findByUser(any(), any());
+    }
+
+    @Test
+    void decide_AvoidRepeatsTrue_NoMatchingOptionHistory_AcceptsFirstResultNoReroll() {
+        Map<AlgorithmType, DecisionAlgorithm> algorithms = Map.of(AlgorithmType.THREAD_RACE, algorithm);
+        DecisionService service = new DecisionService(decisionRepository, algorithms);
+        when(algorithm.chooseWinnerIndex(anyList())).thenReturn(AlgorithmDetails.of(Map.of("winnerIndex", 0)));
+        // Historial con OTRA lista de opciones -> no matchea, recentWinCount=0.
+        Decision unrelated = Decision.builder()
+                .options(List.of(new Option(new OptionId(1L), "X"), new Option(new OptionId(2L), "Y")))
+                .winningOptionId(new OptionId(1L))
+                .build();
+        when(decisionRepository.findByUser(eq(UserId.of(1L)), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(unrelated)));
+        stubTwoPhaseSave();
+
+        DecideCommand command = DecideCommand.builder()
+                .userId(UserId.of(1L)).algorithmType(AlgorithmType.THREAD_RACE)
+                .optionValues(List.of("A", "B")).avoidRepeats(true)
+                .build();
+        service.decide(command);
+
+        verify(algorithm, times(1)).chooseWinnerIndex(anyList());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void decide_AvoidRepeatsTrue_CandidateNeverWonRecently_AcceptsFirstResultNoRerollSteps() {
+        Map<AlgorithmType, DecisionAlgorithm> algorithms = Map.of(AlgorithmType.THREAD_RACE, algorithm);
+        DecisionService service = new DecisionService(decisionRepository, algorithms);
+        // El algoritmo siempre elige índice 0 ("A"), pero el historial (mismas
+        // opciones) muestra que quien ganó fue "B" -> recentWinCount("A")=0.
+        when(algorithm.chooseWinnerIndex(anyList())).thenReturn(AlgorithmDetails.of(Map.of("winnerIndex", 0)));
+        Decision pastWinB = Decision.builder()
+                .options(List.of(new Option(new OptionId(1L), "A"), new Option(new OptionId(2L), "B")))
+                .winningOptionId(new OptionId(2L))
+                .build();
+        when(decisionRepository.findByUser(eq(UserId.of(1L)), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(pastWinB)));
+        AlgorithmDetails[] finalDetails = new AlgorithmDetails[1];
+        stubTwoPhaseSaveCapturing(finalDetails);
+
+        DecideCommand command = DecideCommand.builder()
+                .userId(UserId.of(1L)).algorithmType(AlgorithmType.THREAD_RACE)
+                .optionValues(List.of("A", "B")).avoidRepeats(true)
+                .build();
+        service.decide(command);
+
+        verify(algorithm, times(1)).chooseWinnerIndex(anyList());
+        assertNull(finalDetails[0].getProperties().get("steps"), "sin reroll no debería agregarse ningún step nuevo");
+    }
+
+    @Test
+    void decide_AvoidRepeatsTrue_CandidateWonAllRecentMatches_OverManyTrials_RerollsMostOfTheTime() {
+        Map<AlgorithmType, DecisionAlgorithm> algorithms = Map.of(AlgorithmType.THREAD_RACE, algorithm);
+        DecisionService service = new DecisionService(decisionRepository, algorithms);
+        // El algoritmo SIEMPRE devuelve índice 0 ("A"), y las 3 decisiones
+        // recientes con las mismas opciones también las ganó "A" ->
+        // recentWinCount=3 -> probabilidad de reroll por intento = min(0.99, 0.9) = 90%.
+        when(algorithm.chooseWinnerIndex(anyList())).thenReturn(AlgorithmDetails.of(Map.of("winnerIndex", 0)));
+        Decision pastWinA = Decision.builder()
+                .options(List.of(new Option(new OptionId(1L), "A"), new Option(new OptionId(2L), "B")))
+                .winningOptionId(new OptionId(1L))
+                .build();
+        when(decisionRepository.findByUser(eq(UserId.of(1L)), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(pastWinA, pastWinA, pastWinA)));
+        stubTwoPhaseSave();
+
+        DecideCommand command = DecideCommand.builder()
+                .userId(UserId.of(1L)).algorithmType(AlgorithmType.THREAD_RACE)
+                .optionValues(List.of("A", "B")).avoidRepeats(true)
+                .build();
+        for (int i = 0; i < 100; i++) {
+            service.decide(command);
+        }
+
+        // Con 90% de reroll por intento (hasta 4 intentos extra), el promedio
+        // esperado de llamadas al algoritmo por decisión es ~4.1 -> ~410 en
+        // 100 corridas. 150 es un umbral bien por debajo, sin margen de
+        // flakeo real.
+        verify(algorithm, atLeast(150)).chooseWinnerIndex(anyList());
+    }
+
+    // Two-phase save genérico: simula que el primer save() (sin winningOptionId
+    // aún) asigna ids a las opciones, y el segundo (con winningOptionId) las
+    // devuelve tal cual -- sirve para cualquier cantidad de decide() en un loop.
+    private void stubTwoPhaseSave() {
+        when(decisionRepository.save(any(Decision.class))).thenAnswer(invocation -> {
+            Decision arg = invocation.getArgument(0);
+            if (arg.getWinningOptionId() != null) return arg;
+            List<Option> withIds = new ArrayList<>();
+            long nextId = 1;
+            for (Option o : arg.getOptions()) {
+                withIds.add(new Option(new OptionId(nextId++), o.getValue()));
+            }
+            return Decision.builder()
+                    .id(new DecisionId(100L)).user(arg.getUser()).algorithmType(arg.getAlgorithmType())
+                    .algorithmDetails(arg.getAlgorithmDetails()).options(withIds)
+                    .createdAt(arg.getCreatedAt()).shareCode(arg.getShareCode())
+                    .build();
+        });
+    }
+
+    private void stubTwoPhaseSaveCapturing(AlgorithmDetails[] capturedFinalDetails) {
+        when(decisionRepository.save(any(Decision.class))).thenAnswer(invocation -> {
+            Decision arg = invocation.getArgument(0);
+            if (arg.getWinningOptionId() != null) {
+                capturedFinalDetails[0] = arg.getAlgorithmDetails();
+                return arg;
+            }
+            List<Option> withIds = new ArrayList<>();
+            long nextId = 1;
+            for (Option o : arg.getOptions()) {
+                withIds.add(new Option(new OptionId(nextId++), o.getValue()));
+            }
+            return Decision.builder()
+                    .id(new DecisionId(100L)).user(arg.getUser()).algorithmType(arg.getAlgorithmType())
+                    .algorithmDetails(arg.getAlgorithmDetails()).options(withIds)
+                    .createdAt(arg.getCreatedAt()).shareCode(arg.getShareCode())
+                    .build();
+        });
+    }
 }

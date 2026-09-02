@@ -20,4 +20,7 @@ public class MakeDecisionRequest {
     @NotNull
     @Size(min = 2, message = "At least 2 options are required")
     private List<@NotBlank String> options;
+    // Fase 3.4: reduce (sin eliminar) la chance de repetir el ganador de
+    // decisiones recientes con esta misma lista de opciones. Default false.
+    private boolean avoidRepeats;
 }

@@ -58,7 +58,8 @@ public class DecisionController {
         DecideCommand command = new DecideCommand(
                 resolveAuthenticatedUserId(),
                 type,
-                request.getOptions()
+                request.getOptions(),
+                request.isAvoidRepeats()
         );
         DecisionResult result = makeDecisionUseCase.decide(command);
         MakeDecisionResponse response = MakeDecisionResponse.fromResult(result);

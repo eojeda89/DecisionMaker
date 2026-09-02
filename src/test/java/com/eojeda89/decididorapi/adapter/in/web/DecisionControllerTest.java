@@ -64,7 +64,8 @@ class DecisionControllerTest {
     void setUp() {
         validRequest = new MakeDecisionRequest(
                 "THREAD_RACE",
-                List.of("A", "B")
+                List.of("A", "B"),
+                false
         );
         lenient().when(algorithmDetailsLocalizer.localize(any()))
                 .thenAnswer(invocation -> {

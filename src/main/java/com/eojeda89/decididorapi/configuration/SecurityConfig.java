@@ -1,5 +1,6 @@
 package com.eojeda89.decididorapi.configuration;
 
+import com.eojeda89.decididorapi.security.RateLimitFilter;
 import com.eojeda89.decididorapi.security.jwt.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http, JwtAuthFilter jwtAuthFilter, RateLimitFilter rateLimitFilter
+    ) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
@@ -40,7 +43,11 @@ public class SecurityConfig {
                                 .permitAll()
                 )
                 .logout(LogoutConfigurer::permitAll)
-                .addFilterAfter(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterAfter(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                // Después de JwtAuthFilter: para /api/decisions ya puede leer el
+                // usuario autenticado del SecurityContext y limitar por usuario
+                // en vez de por IP.
+                .addFilterAfter(rateLimitFilter, JwtAuthFilter.class);
 
         return http.build();
     }

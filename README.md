@@ -117,6 +117,8 @@ Endpoints principales:
 
 Ninguno de los dos endpoints de `/api/decisions` acepta un `userId` — quién decide/consulta se determina siempre del JWT, nunca de un valor que el cliente podría manipular.
 
+`/auth/login` y `/api/decisions` tienen rate limiting básico en memoria (por IP en `/auth/login`, por usuario autenticado en `/api/decisions`): 10 y 60 requests por minuto respectivamente. Al superarlo, responden `429 Too Many Requests`.
+
 ## Deploy
 
 Desplegado en [Railway](https://railway.app/) vía un único `Dockerfile` (`eclipse-temurin:21-jdk`, alineado con el `java.version` del `pom.xml`). Postgres corre como un servicio Railway separado en el mismo proyecto (redes privadas `*.railway.internal`). `DB_URL` tiene que ser una URL JDBC completa (`jdbc:postgresql://postgres.railway.internal:5432/railway`) con las credenciales pasadas por separado en `DB_USERNAME`/`DB_PASSWORD` — el driver rechaza el formato `postgresql://user:pass@host/db` que entrega Railway si se pega directo en `DB_URL`.

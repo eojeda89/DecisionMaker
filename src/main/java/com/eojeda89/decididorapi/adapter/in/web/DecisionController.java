@@ -6,15 +6,19 @@ import com.eojeda89.decididorapi.application.port.in.GetDecisionHistoryUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.command.DecideCommand;
 import com.eojeda89.decididorapi.application.port.in.result.DecisionResult;
+import com.eojeda89.decididorapi.application.port.out.UserRepository;
 import com.eojeda89.decididorapi.common.exception.Exceptions.InvalidRequestException;
+import com.eojeda89.decididorapi.common.exception.Exceptions.ResourceNotFoundException;
 import com.eojeda89.decididorapi.common.exception.Exceptions.UnsupportedAlgorithmException;
 import com.eojeda89.decididorapi.domain.model.AlgorithmType;
 import com.eojeda89.decididorapi.domain.model.Decision;
+import com.eojeda89.decididorapi.domain.model.User;
 import com.eojeda89.decididorapi.domain.model.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,14 +36,15 @@ public class DecisionController {
     private final MakeDecisionUseCase makeDecisionUseCase;
     private final GetDecisionHistoryUseCase getDecisionHistoryUseCase;
     private final AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
+    private final UserRepository userRepository;
 
     @PostMapping
-    @Operation(summary = "Toma una nueva decisión", description = "Elige un ganador entre las opciones dadas usando el algoritmo indicado y persiste el resultado.")
+    @Operation(summary = "Toma una nueva decisión", description = "Elige un ganador entre las opciones dadas usando el algoritmo indicado y persiste el resultado, para el usuario autenticado.")
     public MakeDecisionResponse makeDecision(@Valid @RequestBody MakeDecisionRequest request) {
         Objects.requireNonNull(request, "request");
         AlgorithmType type = parseAlgorithmType(request.getAlgorithmType());
         DecideCommand command = new DecideCommand(
-                UserId.of(request.getUserId()),
+                resolveAuthenticatedUserId(),
                 type,
                 request.getOptions()
         );
@@ -50,14 +55,25 @@ public class DecisionController {
     }
 
     @GetMapping
-    @Operation(summary = "Lista el historial de decisiones de un usuario")
-    public List<MakeDecisionResponse> listByUser(@RequestParam("userId") Long userId) {
-        List<Decision> decisions = getDecisionHistoryUseCase.listByUser(UserId.of(userId));
+    @Operation(summary = "Lista el historial de decisiones del usuario autenticado")
+    public List<MakeDecisionResponse> listByUser() {
+        List<Decision> decisions = getDecisionHistoryUseCase.listByUser(resolveAuthenticatedUserId());
         return decisions.stream().map(decision -> {
             MakeDecisionResponse response = MakeDecisionResponse.fromDomain(decision);
             response.setAlgorithmDetails(algorithmDetailsLocalizer.localize(decision.getAlgorithmDetails()));
             return response;
         }).toList();
+    }
+
+    // Quién decide/consulta se determina siempre del JWT autenticado, nunca
+    // de un userId provisto por el cliente — evita que un usuario opere
+    // sobre datos de otro con solo cambiar ese valor en el request.
+    private UserId resolveAuthenticatedUserId() {
+        String principalName = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(principalName)
+                .or(() -> userRepository.findByEmail(principalName))
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
+        return user.getId();
     }
 
     private AlgorithmType parseAlgorithmType(String value) {

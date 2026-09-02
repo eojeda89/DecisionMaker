@@ -112,8 +112,10 @@ Endpoints principales:
 
 - `POST /auth/register` — registra un usuario
 - `POST /auth/login` — devuelve un JWT
-- `POST /api/decisions` — toma una decisión (requiere `Authorization: Bearer <token>`)
-- `GET /api/decisions?userId=` — historial de decisiones de un usuario
+- `POST /api/decisions` — toma una decisión para el usuario autenticado (requiere `Authorization: Bearer <token>`)
+- `GET /api/decisions` — historial de decisiones del usuario autenticado (requiere `Authorization: Bearer <token>`)
+
+Ninguno de los dos endpoints de `/api/decisions` acepta un `userId` — quién decide/consulta se determina siempre del JWT, nunca de un valor que el cliente podría manipular.
 
 ## Deploy
 

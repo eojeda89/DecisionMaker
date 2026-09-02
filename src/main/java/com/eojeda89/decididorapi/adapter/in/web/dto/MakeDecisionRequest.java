@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+// No lleva userId: quién decide se determina del JWT autenticado, nunca de
+// un campo que el propio cliente podría manipular (ver DecisionController).
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class MakeDecisionRequest {
-    @NotNull
-    private Long userId;
     @NotBlank
     private String algorithmType; // accepts enum name or code
     @NotNull

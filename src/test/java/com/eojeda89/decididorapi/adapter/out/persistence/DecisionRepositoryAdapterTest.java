@@ -7,6 +7,11 @@ import com.eojeda89.decididorapi.domain.model.UserId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -52,43 +57,50 @@ class DecisionRepositoryAdapterTest {
     @Test
     void findByUser_HappyPath() {
         UserId userId = UserId.of(1L);
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(1L);
+        Pageable pageable = PageRequest.of(0, 20);
 
         DecisionEntity entity1 = mock(DecisionEntity.class);
         DecisionEntity entity2 = mock(DecisionEntity.class);
-        List<DecisionEntity> entities = List.of(entity1, entity2);
+        when(entity1.getId()).thenReturn(10L);
+        when(entity2.getId()).thenReturn(20L);
 
         Decision decision1 = mock(Decision.class);
         Decision decision2 = mock(Decision.class);
 
-        when(jpaRepository.findByUser(any(UserEntity.class))).thenReturn(entities);
+        // findIdsByUser define el orden de la página; findByIdInWithOptions
+        // puede devolver las entidades en cualquier orden (JOIN FETCH no lo
+        // garantiza) — acá las devuelve al revés a propósito para probar
+        // que el adapter reordena según los ids.
+        Page<Long> idsPage = new PageImpl<>(List.of(10L, 20L), pageable, 2);
+        when(jpaRepository.findIdsByUser(any(UserEntity.class), eq(pageable))).thenReturn(idsPage);
+        when(jpaRepository.findByIdInWithOptions(List.of(10L, 20L))).thenReturn(List.of(entity2, entity1));
         when(mapper.toDomain(entity1)).thenReturn(decision1);
         when(mapper.toDomain(entity2)).thenReturn(decision2);
 
-        List<Decision> result = adapter.findByUser(userId);
+        Page<Decision> result = adapter.findByUser(userId, pageable);
 
-        assertEquals(2, result.size());
-        assertTrue(result.contains(decision1));
-        assertTrue(result.contains(decision2));
-        verify(jpaRepository).findByUser(argThat(u -> u.getId().equals(1L)));
-        verify(mapper).toDomain(entity1);
-        verify(mapper).toDomain(entity2);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(List.of(decision1, decision2), result.getContent());
+        verify(jpaRepository).findIdsByUser(argThat(u -> u.getId().equals(1L)), eq(pageable));
     }
 
     @Test
-    void findByUser_NoDecisions_ReturnsEmptyList() {
+    void findByUser_NoDecisions_ReturnsEmptyPage() {
         UserId userId = UserId.of(2L);
-        when(jpaRepository.findByUser(any(UserEntity.class))).thenReturn(Collections.emptyList());
+        Pageable pageable = PageRequest.of(0, 20);
+        when(jpaRepository.findIdsByUser(any(UserEntity.class), eq(pageable)))
+                .thenReturn(new PageImpl<>(Collections.emptyList(), pageable, 0));
 
-        List<Decision> result = adapter.findByUser(userId);
+        Page<Decision> result = adapter.findByUser(userId, pageable);
 
         assertNotNull(result);
-        assertTrue(result.isEmpty());
+        assertTrue(result.getContent().isEmpty());
+        assertEquals(0, result.getTotalElements());
+        verify(jpaRepository, never()).findByIdInWithOptions(any());
     }
 
     @Test
     void findByUser_NullUserId_ThrowsException() {
-        assertThrows(NullPointerException.class, () -> adapter.findByUser(null));
+        assertThrows(NullPointerException.class, () -> adapter.findByUser(null, PageRequest.of(0, 20)));
     }
 }

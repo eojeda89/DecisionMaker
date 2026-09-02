@@ -9,6 +9,10 @@ import com.eojeda89.decididorapi.domain.service.DecisionAlgorithm;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.time.Instant;
 import java.util.*;
 
@@ -151,13 +155,14 @@ class DecisionServiceTest {
         DecisionService service = new DecisionService(decisionRepository, algorithms);
 
         UserId userId = UserId.of(1L);
-        List<Decision> decisions = List.of(mock(Decision.class), mock(Decision.class));
-        when(decisionRepository.findByUser(userId)).thenReturn(decisions);
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Decision> decisions = new PageImpl<>(List.of(mock(Decision.class), mock(Decision.class)), pageable, 2);
+        when(decisionRepository.findByUser(userId, pageable)).thenReturn(decisions);
 
-        List<Decision> result = service.listByUser(userId);
+        Page<Decision> result = service.listByUser(userId, pageable);
 
-        assertEquals(2, result.size());
-        verify(decisionRepository).findByUser(userId);
+        assertEquals(2, result.getContent().size());
+        verify(decisionRepository).findByUser(userId, pageable);
     }
 
     @Test
@@ -165,6 +170,14 @@ class DecisionServiceTest {
         Map<AlgorithmType, DecisionAlgorithm> algorithms = Map.of();
         DecisionService service = new DecisionService(decisionRepository, algorithms);
 
-        assertThrows(NullPointerException.class, () -> service.listByUser(null));
+        assertThrows(NullPointerException.class, () -> service.listByUser(null, PageRequest.of(0, 20)));
+    }
+
+    @Test
+    void listByUser_NullPageable_ThrowsException() {
+        Map<AlgorithmType, DecisionAlgorithm> algorithms = Map.of();
+        DecisionService service = new DecisionService(decisionRepository, algorithms);
+
+        assertThrows(NullPointerException.class, () -> service.listByUser(UserId.of(1L), null));
     }
 }

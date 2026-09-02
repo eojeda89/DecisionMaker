@@ -11,18 +11,21 @@ import com.eojeda89.decididorapi.common.exception.Exceptions.InvalidRequestExcep
 import com.eojeda89.decididorapi.common.exception.Exceptions.ResourceNotFoundException;
 import com.eojeda89.decididorapi.common.exception.Exceptions.UnsupportedAlgorithmException;
 import com.eojeda89.decididorapi.domain.model.AlgorithmType;
-import com.eojeda89.decididorapi.domain.model.Decision;
 import com.eojeda89.decididorapi.domain.model.User;
 import com.eojeda89.decididorapi.domain.model.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -32,6 +35,8 @@ import java.util.Objects;
 @Validated
 @Tag(name = "Decisiones", description = "Toma de decisiones al azar y consulta de historial")
 public class DecisionController {
+
+    private static final int MAX_PAGE_SIZE = 100;
 
     private final MakeDecisionUseCase makeDecisionUseCase;
     private final GetDecisionHistoryUseCase getDecisionHistoryUseCase;
@@ -55,14 +60,22 @@ public class DecisionController {
     }
 
     @GetMapping
-    @Operation(summary = "Lista el historial de decisiones del usuario autenticado")
-    public List<MakeDecisionResponse> listByUser() {
-        List<Decision> decisions = getDecisionHistoryUseCase.listByUser(resolveAuthenticatedUserId());
-        return decisions.stream().map(decision -> {
-            MakeDecisionResponse response = MakeDecisionResponse.fromDomain(decision);
-            response.setAlgorithmDetails(algorithmDetailsLocalizer.localize(decision.getAlgorithmDetails()));
-            return response;
-        }).toList();
+    @Operation(summary = "Lista el historial de decisiones del usuario autenticado, paginado", description = "Ordenado por más reciente primero.")
+    public PagedModel<MakeDecisionResponse> listByUser(
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(MAX_PAGE_SIZE) int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        var responsePage = getDecisionHistoryUseCase.listByUser(resolveAuthenticatedUserId(), pageable)
+                .map(decision -> {
+                    MakeDecisionResponse response = MakeDecisionResponse.fromDomain(decision);
+                    response.setAlgorithmDetails(algorithmDetailsLocalizer.localize(decision.getAlgorithmDetails()));
+                    return response;
+                });
+        // PagedModel en vez de devolver Page directo: Page/PageImpl no tiene
+        // un contrato JSON estable para una API pública (Spring emite un
+        // warning al respecto). PagedModel sí lo tiene: {content, page: {...}}.
+        return new PagedModel<>(responsePage);
     }
 
     // Quién decide/consulta se determina siempre del JWT autenticado, nunca

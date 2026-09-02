@@ -17,6 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -158,35 +163,49 @@ class DecisionControllerTest {
 
     @Test
     void listByUser_HappyPath() {
-        List<Decision> decisions = List.of(
-                Decision.builder()
-                        .id(DecisionId.of(1L))
-                        .user(User.builder()
-                                .id(UserId.of(1L))
-                                .build())
-                        .winningOptionId(OptionId.of(100L))
-                        .options(List.of(new Option(OptionId.of(100L), "A"), new Option(OptionId.of(101L), "B")))
-                        .algorithmType(AlgorithmType.THREAD_RACE)
-                        .algorithmDetails(AlgorithmDetails.of(Map.of("seed", 42, "winnerIndex", 1)))
-                        .createdAt(Instant.now())
-                        .build()
-                );
-        when(getDecisionHistoryUseCase.listByUser(UserId.of(1L))).thenReturn(decisions);
+        Pageable pageable = PageRequest.of(0, 20);
+        Decision decision = Decision.builder()
+                .id(DecisionId.of(1L))
+                .user(User.builder()
+                        .id(UserId.of(1L))
+                        .build())
+                .winningOptionId(OptionId.of(100L))
+                .options(List.of(new Option(OptionId.of(100L), "A"), new Option(OptionId.of(101L), "B")))
+                .algorithmType(AlgorithmType.THREAD_RACE)
+                .algorithmDetails(AlgorithmDetails.of(Map.of("seed", 42, "winnerIndex", 1)))
+                .createdAt(Instant.now())
+                .build();
+        Page<Decision> decisions = new PageImpl<>(List.of(decision), pageable, 1);
+        when(getDecisionHistoryUseCase.listByUser(UserId.of(1L), pageable)).thenReturn(decisions);
 
-        List<MakeDecisionResponse> responses = controller.listByUser();
+        PagedModel<MakeDecisionResponse> responses = controller.listByUser(0, 20);
 
-        assertEquals(1, responses.size());
-        assertEquals(1L, responses.getFirst().getDecisionId());
-        verify(getDecisionHistoryUseCase, times(1)).listByUser(UserId.of(1L));
+        assertEquals(1, responses.getContent().size());
+        assertEquals(1L, responses.getContent().iterator().next().getDecisionId());
+        assertEquals(1, responses.getMetadata().totalElements());
+        verify(getDecisionHistoryUseCase, times(1)).listByUser(UserId.of(1L), pageable);
     }
 
     @Test
-    void listByUser_EmptyList() {
-        when(getDecisionHistoryUseCase.listByUser(UserId.of(1L))).thenReturn(Collections.emptyList());
+    void listByUser_EmptyPage() {
+        Pageable pageable = PageRequest.of(0, 20);
+        when(getDecisionHistoryUseCase.listByUser(UserId.of(1L), pageable))
+                .thenReturn(new PageImpl<>(Collections.emptyList(), pageable, 0));
 
-        List<MakeDecisionResponse> responses = controller.listByUser();
+        PagedModel<MakeDecisionResponse> responses = controller.listByUser(0, 20);
 
-        assertTrue(responses.isEmpty());
+        assertTrue(responses.getContent().isEmpty());
+    }
+
+    @Test
+    void listByUser_UsesRequestedPageAndSize() {
+        Pageable pageable = PageRequest.of(2, 10);
+        when(getDecisionHistoryUseCase.listByUser(UserId.of(1L), pageable))
+                .thenReturn(new PageImpl<>(Collections.emptyList(), pageable, 0));
+
+        controller.listByUser(2, 10);
+
+        verify(getDecisionHistoryUseCase).listByUser(UserId.of(1L), pageable);
     }
 
     @Test
@@ -197,11 +216,13 @@ class DecisionControllerTest {
         when(userRepository.findByUsername("user@example.com")).thenReturn(Optional.empty());
         when(userRepository.findByEmail("user@example.com"))
                 .thenReturn(Optional.of(User.builder().id(UserId.of(2L)).email("user@example.com").build()));
-        when(getDecisionHistoryUseCase.listByUser(UserId.of(2L))).thenReturn(Collections.emptyList());
+        Pageable pageable = PageRequest.of(0, 20);
+        when(getDecisionHistoryUseCase.listByUser(UserId.of(2L), pageable))
+                .thenReturn(new PageImpl<>(Collections.emptyList(), pageable, 0));
 
-        List<MakeDecisionResponse> responses = controller.listByUser();
+        PagedModel<MakeDecisionResponse> responses = controller.listByUser(0, 20);
 
-        assertTrue(responses.isEmpty());
-        verify(getDecisionHistoryUseCase).listByUser(UserId.of(2L));
+        assertTrue(responses.getContent().isEmpty());
+        verify(getDecisionHistoryUseCase).listByUser(UserId.of(2L), pageable);
     }
 }

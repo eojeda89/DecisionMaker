@@ -9,6 +9,8 @@ import com.eojeda89.decididorapi.common.exception.Exceptions;
 import com.eojeda89.decididorapi.domain.model.*;
 import com.eojeda89.decididorapi.domain.service.DecisionAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -81,8 +83,9 @@ public class DecisionService implements MakeDecisionUseCase, GetDecisionHistoryU
     }
 
     @Override
-    public List<Decision> listByUser(UserId userId) {
+    public Page<Decision> listByUser(UserId userId, Pageable pageable) {
         Objects.requireNonNull(userId, "userId");
-        return decisionRepository.findByUser(userId);
+        Objects.requireNonNull(pageable, "pageable");
+        return decisionRepository.findByUser(userId, pageable);
     }
 }

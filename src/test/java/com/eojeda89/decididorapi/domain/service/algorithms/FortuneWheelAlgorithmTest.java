@@ -54,4 +54,24 @@ class FortuneWheelAlgorithmTest {
             assertTrue(index >= 0 && index < options.size(), "Índice fuera de rango: " + index);
         }
     }
+
+    @Test
+    void chooseWinnerIndex_OverManyTrials_DistributionIsApproximatelyUniform() {
+        // Los segmentos de la ruleta son del mismo tamaño (360/n grados), así
+        // que cada opción debería ganar ~1/n de las veces.
+        List<Option> options = List.of(mock(Option.class), mock(Option.class), mock(Option.class), mock(Option.class));
+        int trials = 10_000;
+        int[] wins = new int[options.size()];
+
+        for (int i = 0; i < trials; i++) {
+            int index = algorithm.chooseWinnerIndex(options).get("winnerIndex", Integer.class);
+            wins[index]++;
+        }
+
+        for (int index = 0; index < wins.length; index++) {
+            double rate = wins[index] / (double) trials;
+            assertTrue(rate > 0.20 && rate < 0.30,
+                    "Índice " + index + " ganó " + rate + " de las veces, esperado ~0.25 (±0.05)");
+        }
+    }
 }

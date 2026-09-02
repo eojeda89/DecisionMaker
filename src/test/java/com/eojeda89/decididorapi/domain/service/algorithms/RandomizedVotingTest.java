@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class DiceRollAlgorithmTest {
+class RandomizedVotingTest {
 
-    private final DiceRollAlgorithm algorithm = new DiceRollAlgorithm();
+    private final RandomizedVoting algorithm = new RandomizedVoting();
 
     @Test
     void chooseWinnerIndex_HappyPath_ReturnsValidIndex() {
@@ -46,11 +46,10 @@ class DiceRollAlgorithmTest {
 
     @Test
     void chooseWinnerIndex_OverManyTrials_DistributionIsApproximatelyUniform() {
-        // A diferencia de Random Weighted (Fase 0), acá no hay pesos: cada
-        // opción debería ganar ~1/n de las veces. Con N=10.000 y 4 opciones,
-        // el margen de ±5 puntos porcentuales sobre el 25% esperado es ~11
-        // desvíos estándar (binomial(10000, 0.25), sd≈43) — no debería
-        // flakear, pero sí detecta un sesgo real hacia algún índice.
+        // Cada opción recibe un voto aleatorio independiente (0-99); gana el
+        // voto más alto. Al ser i.i.d., cada opción debería ganar ~1/n de
+        // las veces (empates son posibles pero no sesgan la distribución de
+        // forma apreciable con un margen de ±5 puntos porcentuales).
         List<Option> options = List.of(mock(Option.class), mock(Option.class), mock(Option.class), mock(Option.class));
         int trials = 10_000;
         int[] wins = new int[options.size()];

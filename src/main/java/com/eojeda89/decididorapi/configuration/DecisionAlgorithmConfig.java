@@ -1,6 +1,5 @@
 package com.eojeda89.decididorapi.configuration;
 
-import com.eojeda89.decididorapi.common.exception.Exceptions;
 import com.eojeda89.decididorapi.domain.model.AlgorithmType;
 import com.eojeda89.decididorapi.domain.service.DecisionAlgorithm;
 import com.eojeda89.decididorapi.domain.service.algorithms.*;
@@ -33,11 +32,7 @@ public class DecisionAlgorithmConfig {
 
     @Bean(name = "fisherYatesSelectionAlgorithm")
     public DecisionAlgorithm fisherYatesSelectionAlgorithm() {
-        try {
-            return new FisherYatesSelection();
-        } catch (Exception e) {
-            throw new Exceptions.AlgorithmException("Failed to create FisherYatesSelection algorithm", e);
-        }
+        return new FisherYatesSelection();
     }
 
     @Bean

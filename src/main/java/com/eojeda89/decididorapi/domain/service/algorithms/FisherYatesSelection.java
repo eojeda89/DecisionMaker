@@ -5,17 +5,15 @@ import com.eojeda89.decididorapi.domain.model.AlgorithmDetails;
 import com.eojeda89.decididorapi.domain.model.Option;
 import com.eojeda89.decididorapi.domain.service.DecisionAlgorithm;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
 
 public class FisherYatesSelection implements DecisionAlgorithm {
 
-    private final Random random = SecureRandom.getInstanceStrong();
-
-    public FisherYatesSelection() throws NoSuchAlgorithmException {
-        // Constructor to ensure SecureRandom is initialized
-    }
+    // SecureRandom.getInstanceStrong() puede bloquear esperando entropía en
+    // algunos entornos Linux/containers (ej. Railway). `new SecureRandom()`
+    // sigue siendo criptográficamente fuerte y no bloquea.
+    private final Random random = new SecureRandom();
 
     @Override
     public AlgorithmDetails chooseWinnerIndex(List<Option> options) {

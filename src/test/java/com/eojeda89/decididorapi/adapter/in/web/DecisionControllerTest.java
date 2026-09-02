@@ -1,9 +1,12 @@
 package com.eojeda89.decididorapi.adapter.in.web;
 
+import com.eojeda89.decididorapi.adapter.in.web.dto.BestOfNRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionResponse;
 import com.eojeda89.decididorapi.application.port.in.GetDecisionHistoryUseCase;
+import com.eojeda89.decididorapi.application.port.in.MakeBestOfNDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeDecisionUseCase;
+import com.eojeda89.decididorapi.application.port.in.command.BestOfNCommand;
 import com.eojeda89.decididorapi.application.port.in.command.DecideCommand;
 import com.eojeda89.decididorapi.application.port.in.result.DecisionResult;
 import com.eojeda89.decididorapi.application.port.out.UserRepository;
@@ -40,6 +43,8 @@ class DecisionControllerTest {
 
     @Mock
     private MakeDecisionUseCase makeDecisionUseCase;
+    @Mock
+    private MakeBestOfNDecisionUseCase makeBestOfNDecisionUseCase;
     @Mock
     private GetDecisionHistoryUseCase getDecisionHistoryUseCase;
     @Mock
@@ -159,6 +164,61 @@ class DecisionControllerTest {
             }
             controller.makeDecision(validRequest);
         });
+    }
+
+    @Test
+    void makeBestOfNDecision_HappyPath() {
+        BestOfNRequest request = new BestOfNRequest(5, List.of("A", "B"), null);
+        DecisionResult result = DecisionResult.builder()
+                .decisionId(DecisionId.of(20L))
+                .winningOptionId(OptionId.of(200L))
+                .options(List.of(new Option(OptionId.of(200L), "A"), new Option(OptionId.of(201L), "B")))
+                .algorithmType(AlgorithmType.BEST_OF_N)
+                .algorithmDetails(AlgorithmDetails.of(Map.of("winnerIndex", 0)))
+                .createdAt(Instant.now())
+                .build();
+        when(makeBestOfNDecisionUseCase.decide(any(BestOfNCommand.class))).thenReturn(result);
+
+        MakeDecisionResponse response = controller.makeBestOfNDecision(request);
+
+        assertEquals(20L, response.getDecisionId());
+        assertEquals(200L, response.getWinningOptionId());
+        assertEquals("best-of-n", response.getAlgorithmType());
+        verify(makeBestOfNDecisionUseCase).decide(argThat(cmd ->
+                cmd.getUserId().equals(UserId.of(1L))
+                        && cmd.getRounds() == 5
+                        && cmd.getAlgorithmPool() == null));
+    }
+
+    @Test
+    void makeBestOfNDecision_ParsesRequestedAlgorithmPool() {
+        BestOfNRequest request = new BestOfNRequest(3, List.of("A", "B"), List.of("dice-roll", "THREAD_RACE"));
+        DecisionResult result = DecisionResult.builder()
+                .decisionId(DecisionId.of(21L))
+                .winningOptionId(OptionId.of(210L))
+                .options(List.of(new Option(OptionId.of(210L), "A"), new Option(OptionId.of(211L), "B")))
+                .algorithmType(AlgorithmType.BEST_OF_N)
+                .algorithmDetails(AlgorithmDetails.of(Map.of("winnerIndex", 0)))
+                .createdAt(Instant.now())
+                .build();
+        when(makeBestOfNDecisionUseCase.decide(any(BestOfNCommand.class))).thenReturn(result);
+
+        controller.makeBestOfNDecision(request);
+
+        verify(makeBestOfNDecisionUseCase).decide(argThat(cmd ->
+                cmd.getAlgorithmPool().equals(List.of(AlgorithmType.DICE_ROLL, AlgorithmType.THREAD_RACE))));
+    }
+
+    @Test
+    void makeBestOfNDecision_UnsupportedAlgorithmInPool_ThrowsException() {
+        BestOfNRequest request = new BestOfNRequest(3, List.of("A", "B"), List.of("no-existe"));
+
+        assertThrows(UnsupportedAlgorithmException.class, () -> controller.makeBestOfNDecision(request));
+    }
+
+    @Test
+    void makeBestOfNDecision_NullRequest_ThrowsException() {
+        assertThrows(NullPointerException.class, () -> controller.makeBestOfNDecision(null));
     }
 
     @Test

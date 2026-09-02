@@ -1,9 +1,12 @@
 package com.eojeda89.decididorapi.adapter.in.web;
 
+import com.eojeda89.decididorapi.adapter.in.web.dto.BestOfNRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionRequest;
 import com.eojeda89.decididorapi.adapter.in.web.dto.MakeDecisionResponse;
 import com.eojeda89.decididorapi.application.port.in.GetDecisionHistoryUseCase;
+import com.eojeda89.decididorapi.application.port.in.MakeBestOfNDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.MakeDecisionUseCase;
+import com.eojeda89.decididorapi.application.port.in.command.BestOfNCommand;
 import com.eojeda89.decididorapi.application.port.in.command.DecideCommand;
 import com.eojeda89.decididorapi.application.port.in.result.DecisionResult;
 import com.eojeda89.decididorapi.application.port.out.UserRepository;
@@ -26,6 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -39,6 +43,7 @@ public class DecisionController {
     private static final int MAX_PAGE_SIZE = 100;
 
     private final MakeDecisionUseCase makeDecisionUseCase;
+    private final MakeBestOfNDecisionUseCase makeBestOfNDecisionUseCase;
     private final GetDecisionHistoryUseCase getDecisionHistoryUseCase;
     private final AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
     private final UserRepository userRepository;
@@ -54,6 +59,25 @@ public class DecisionController {
                 request.getOptions()
         );
         DecisionResult result = makeDecisionUseCase.decide(command);
+        MakeDecisionResponse response = MakeDecisionResponse.fromResult(result);
+        response.setAlgorithmDetails(algorithmDetailsLocalizer.localize(result.getAlgorithmDetails()));
+        return response;
+    }
+
+    @PostMapping("/best-of-n")
+    @Operation(summary = "Toma una decisión al mejor de N rondas", description = "Corre N (3, 5 o 7) rondas independientes, cada una con un algoritmo elegido al azar (o del subconjunto indicado en \"algorithms\"), y persiste el resultado para el usuario autenticado. Gana la opción con más rondas ganadas; empate en el primer puesto se resuelve con una ronda extra solo entre las empatadas.")
+    public MakeDecisionResponse makeBestOfNDecision(@Valid @RequestBody BestOfNRequest request) {
+        Objects.requireNonNull(request, "request");
+        List<AlgorithmType> pool = request.getAlgorithms() == null
+                ? null
+                : request.getAlgorithms().stream().map(this::parseAlgorithmType).toList();
+        BestOfNCommand command = BestOfNCommand.builder()
+                .userId(resolveAuthenticatedUserId())
+                .rounds(request.getRounds())
+                .optionValues(request.getOptions())
+                .algorithmPool(pool)
+                .build();
+        DecisionResult result = makeBestOfNDecisionUseCase.decide(command);
         MakeDecisionResponse response = MakeDecisionResponse.fromResult(result);
         response.setAlgorithmDetails(algorithmDetailsLocalizer.localize(result.getAlgorithmDetails()));
         return response;

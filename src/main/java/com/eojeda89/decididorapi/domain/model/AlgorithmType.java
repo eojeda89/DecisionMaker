@@ -10,7 +10,13 @@ public enum AlgorithmType {
     RANDOM_WEIGHTED("random-weighted", "Aleatorio ponderado"),
     RANDOMIZED_VOTING("randomized-voting", "Votación aleatorizada"),
     FISHER_YATES_SELECTION("fisher-yates-selection", "Selección Fisher-Yates"),
-    BRACKET_TOURNAMENT("bracket-tournament", "Torneo eliminatorio");
+    BRACKET_TOURNAMENT("bracket-tournament", "Torneo eliminatorio"),
+    // Meta-algoritmo (Fase 3.2): orquesta N corridas de los algoritmos de
+    // arriba vía BestOfNDecisionService, no un DecisionAlgorithm propio, así
+    // que no tiene entrada en el mapa de DecisionAlgorithmConfig. Se excluye
+    // a propósito del dropdown de /form (AppController) porque no encaja en
+    // el flujo de "un solo algoritmo" de esa pantalla.
+    BEST_OF_N("best-of-n", "Mejor de N");
 
     private final String code;
     private final String uiName;

@@ -17,6 +17,8 @@ import com.eojeda89.decididorapi.domain.model.Decision;
 import com.eojeda89.decididorapi.domain.model.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -49,6 +51,7 @@ public class AppController {
     private final GetUserStatsUseCase getUserStatsUseCase;
     private final MakeBestOfNDecisionUseCase makeBestOfNDecisionUseCase;
     private final GetDailyDecisionUseCase getDailyDecisionUseCase;
+    private final MessageSource messageSource;
 
     @GetMapping("/login")
     public String login() {
@@ -238,6 +241,15 @@ public class AppController {
         model.addAttribute("winningAngleDegrees", winningAngle);
     }
 
+    // AlgorithmType.uiName está hardcodeado en español; para mostrar el
+    // nombre en el idioma activo hay que pasar por messages.properties
+    // (misma clave "algorithm.<code>.name" que usa AlgorithmDetailsLocalizer
+    // para el resultado de una decisión).
+    private String localizedAlgorithmName(AlgorithmType type) {
+        return messageSource.getMessage(
+                "algorithm." + type.getCode() + ".name", null, type.getUiName(), LocaleContextHolder.getLocale());
+    }
+
     @GetMapping("/stats")
     public String stats(Model model) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -247,7 +259,7 @@ public class AppController {
         UserStatsResult stats = getUserStatsUseCase.getStats(user.getId());
         model.addAttribute("totalDecisions", stats.getTotalDecisions());
         model.addAttribute("mostUsedAlgorithmName",
-                stats.getMostUsedAlgorithm() != null ? stats.getMostUsedAlgorithm().getUiName() : null);
+                stats.getMostUsedAlgorithm() != null ? localizedAlgorithmName(stats.getMostUsedAlgorithm()) : null);
         model.addAttribute("mostWonOptionValue", stats.getMostWonOptionValue());
         model.addAttribute("mostWonOptionCount", stats.getMostWonOptionCount());
 
@@ -257,7 +269,7 @@ public class AppController {
                 .sorted(Map.Entry.<AlgorithmType, Long>comparingByValue().reversed())
                 .map(entry -> {
                     Map<String, Object> row = new LinkedHashMap<>();
-                    row.put("name", entry.getKey().getUiName());
+                    row.put("name", localizedAlgorithmName(entry.getKey()));
                     row.put("count", entry.getValue());
                     row.put("percent", maxAlgorithmCount == 0 ? 0 : (entry.getValue() * 100 / maxAlgorithmCount));
                     return row;

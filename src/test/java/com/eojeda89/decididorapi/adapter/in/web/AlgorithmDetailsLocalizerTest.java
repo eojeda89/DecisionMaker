@@ -103,4 +103,55 @@ class AlgorithmDetailsLocalizerTest {
 
         assertFalse(resolved.containsKey("steps"));
     }
+
+    // BestOfNDecisionService pasa el code del algoritmo (no el uiName, que
+    // está hardcodeado en español) como arg posicional en estas dos claves,
+    // justamente para que el localizer lo resuelva en el idioma activo.
+    @Test
+    @SuppressWarnings("unchecked")
+    void localize_BestOfNRoundStep_ResolvesAlgorithmCodeArg() {
+        when(messageSource.getMessage(eq("algorithm.fortune-wheel.name"), any(), eq("fortune-wheel"), any(Locale.class)))
+                .thenReturn("Wheel of Fortune");
+        when(messageSource.getMessage(
+                eq("narrative.best-of-n.round"), eq(new Object[]{1, "Wheel of Fortune", "Pizza"}),
+                eq("narrative.best-of-n.round"), any(Locale.class)
+        )).thenReturn("Round 1 (Wheel of Fortune): Pizza won.");
+
+        AlgorithmDetails details = AlgorithmDetails.of(Map.of(
+                "winnerIndex", 0,
+                "steps", List.of(Map.of(
+                        "descriptionKey", "narrative.best-of-n.round",
+                        "args", List.of(1, "fortune-wheel", "Pizza")
+                ))
+        ));
+
+        Map<String, Object> resolved = localizer.localize(details);
+        List<Map<String, Object>> steps = (List<Map<String, Object>>) resolved.get("steps");
+
+        assertEquals("Round 1 (Wheel of Fortune): Pizza won.", steps.get(0).get("text"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void localize_BestOfNTiebreakStep_ResolvesAlgorithmCodeArgAtIndexZero() {
+        when(messageSource.getMessage(eq("algorithm.dice-roll.name"), any(), eq("dice-roll"), any(Locale.class)))
+                .thenReturn("Dice Roll");
+        when(messageSource.getMessage(
+                eq("narrative.best-of-n.tiebreak"), eq(new Object[]{"Dice Roll", "Pizza, Sushi", "Pizza"}),
+                eq("narrative.best-of-n.tiebreak"), any(Locale.class)
+        )).thenReturn("Tiebreak (Dice Roll) among Pizza, Sushi: Pizza won.");
+
+        AlgorithmDetails details = AlgorithmDetails.of(Map.of(
+                "winnerIndex", 0,
+                "steps", List.of(Map.of(
+                        "descriptionKey", "narrative.best-of-n.tiebreak",
+                        "args", List.of("dice-roll", "Pizza, Sushi", "Pizza")
+                ))
+        ));
+
+        Map<String, Object> resolved = localizer.localize(details);
+        List<Map<String, Object>> steps = (List<Map<String, Object>>) resolved.get("steps");
+
+        assertEquals("Tiebreak (Dice Roll) among Pizza, Sushi: Pizza won.", steps.get(0).get("text"));
+    }
 }

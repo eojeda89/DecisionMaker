@@ -45,7 +45,7 @@
             <div class="checkbox-group">
                 <label class="checkbox-label" th:each="algorithm : ${algorithms}">
                     <input type="checkbox" name="algorithms" th:value="${algorithm.code}">
-                    <span th:text="${algorithm.uiName}"></span>
+                    <span th:text="#{__${'algorithm.' + algorithm.code + '.name'}__}"></span>
                 </label>
             </div>
         </div>

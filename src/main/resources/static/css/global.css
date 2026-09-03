@@ -303,6 +303,36 @@ button:active {
     color: var(--accent);
 }
 
+/* --- Selector de idioma (Fase 4, fuera del plan) --- */
+.lang-switcher {
+    display: flex;
+    gap: 4px;
+}
+
+.lang-switcher button {
+    width: auto;
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.lang-switcher button:hover {
+    background-color: var(--bg);
+    transform: none;
+    box-shadow: none;
+}
+
+.lang-switcher button.lang-active {
+    background: var(--accent-gradient);
+    color: white;
+    border-color: transparent;
+}
+
 .input-error {
     border: 2px solid red;
 }

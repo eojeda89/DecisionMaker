@@ -29,9 +29,18 @@
         <a th:href="@{/stats}" th:text="#{nav.stats}">Mis estadísticas</a>
     </div>
     <div class="navbar-actions">
+        <!-- Selector de idioma (Fase 4, fuera del plan): cambia el locale de
+             la sesión vía WebConfig's LocaleChangeInterceptor (?lang=xx). Ver
+             #locale, objeto estándar de Thymeleaf con el Locale activo. -->
+        <div class="lang-switcher">
+            <button type="button" th:classappend="${#locale.language == 'es'} ? 'lang-active'" onclick="switchLanguage('es')">ES</button>
+            <button type="button" th:classappend="${#locale.language == 'en'} ? 'lang-active'" onclick="switchLanguage('en')">EN</button>
+            <button type="button" th:classappend="${#locale.language == 'ja'} ? 'lang-active'" onclick="switchLanguage('ja')">JA</button>
+        </div>
         <button id="dark-mode-toggle" type="button" class="theme-toggle" th:title="#{nav.toggleTheme}">🌙</button>
         <a th:if="${username}" th:href="@{/logout}" th:text="#{nav.logout}">Cerrar Sesión</a>
     </div>
+    <script th:src="@{/js/language-switcher.js}"></script>
 </nav>
 </body>
 </html>

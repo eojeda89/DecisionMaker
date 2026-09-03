@@ -69,8 +69,10 @@ public class BestOfNDecisionService implements MakeBestOfNDecisionUseCase {
             AlgorithmType roundType = pickRandom(pool);
             int roundWinnerIndex = runAlgorithm(roundType, options);
             winsByOptionIndex[roundWinnerIndex]++;
+            // El code (no el uiName, hardcodeado en español) para que
+            // AlgorithmDetailsLocalizer lo resuelva en el idioma correcto.
             steps.add(step("narrative.best-of-n.round",
-                    round, roundType.getUiName(), options.get(roundWinnerIndex).getValue()));
+                    round, roundType.getCode(), options.get(roundWinnerIndex).getValue()));
         }
 
         int winnerIndex = resolveOverallWinner(winsByOptionIndex, options, pool, steps);
@@ -146,7 +148,7 @@ public class BestOfNDecisionService implements MakeBestOfNDecisionUseCase {
         int winnerIndex = leaders.get(localWinnerIndex);
 
         String tiedNames = tiedOptions.stream().map(Option::getValue).collect(Collectors.joining(", "));
-        steps.add(step("narrative.best-of-n.tiebreak", tieBreakType.getUiName(), tiedNames, options.get(winnerIndex).getValue()));
+        steps.add(step("narrative.best-of-n.tiebreak", tieBreakType.getCode(), tiedNames, options.get(winnerIndex).getValue()));
         return winnerIndex;
     }
 

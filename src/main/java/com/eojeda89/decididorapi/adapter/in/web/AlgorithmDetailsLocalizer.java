@@ -29,6 +29,16 @@ public class AlgorithmDetailsLocalizer {
     private static final String DESCRIPTION_KEY = "description";
     private static final String STEPS_KEY = "steps";
 
+    // BestOfNDecisionService pasa el AlgorithmType.code (no el uiName, que
+    // está hardcodeado en español) como arg posicional en estas dos claves,
+    // precisamente para que quede localizable acá en vez de resuelto de
+    // antemano en la capa de aplicación. El índice indica en qué posición
+    // de "args" viene ese código.
+    private static final Map<String, Integer> ALGORITHM_ARG_INDEX = Map.of(
+            "narrative.best-of-n.round", 1,
+            "narrative.best-of-n.tiebreak", 0
+    );
+
     private final MessageSource messageSource;
 
     public Map<String, Object> localize(AlgorithmDetails details) {
@@ -65,10 +75,22 @@ public class AlgorithmDetailsLocalizer {
             if (descriptionKey instanceof String key) {
                 Object argsValue = stepMap.get("args");
                 Object[] args = argsValue instanceof List<?> argList ? argList.toArray() : new Object[0];
+                args = resolveAlgorithmArg(key, args, locale);
                 resolvedStep.put("text", messageSource.getMessage(key, args, key, locale));
             }
             resolvedSteps.add(resolvedStep);
         }
         details.put(STEPS_KEY, resolvedSteps);
+    }
+
+    private Object[] resolveAlgorithmArg(String descriptionKey, Object[] args, Locale locale) {
+        Integer index = ALGORITHM_ARG_INDEX.get(descriptionKey);
+        if (index == null || index >= args.length || !(args[index] instanceof String algorithmCode)) {
+            return args;
+        }
+        Object[] resolved = args.clone();
+        String nameKey = "algorithm." + algorithmCode + ".name";
+        resolved[index] = messageSource.getMessage(nameKey, null, algorithmCode, locale);
+        return resolved;
     }
 }

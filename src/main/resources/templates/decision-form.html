@@ -37,7 +37,7 @@
                 <!-- Iteramos sobre la lista de algoritmos -->
                 <option th:each="algorithm : ${algorithms}"
                         th:value="${algorithm.code}"
-                        th:text="${algorithm.uiName}">
+                        th:text="#{__${'algorithm.' + algorithm.code + '.name'}__}">
                 </option>
             </select>
         </div>

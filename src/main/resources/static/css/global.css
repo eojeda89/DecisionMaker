@@ -30,6 +30,7 @@
     --accent-gradient: linear-gradient(135deg, #8b5cf6, #fb7185);
     --accent-gradient-hover: linear-gradient(135deg, #7c3aed, #f43f5e);
     --shadow: rgba(124, 58, 237, 0.18);
+    --navbar-bg: rgba(255, 255, 255, 0.75);
 }
 
 [data-theme="dark"] {
@@ -51,6 +52,7 @@
     --accent-gradient: linear-gradient(135deg, #a78bfa, #fb7185);
     --accent-gradient-hover: linear-gradient(135deg, #c4b5fd, #fda4af);
     --shadow: rgba(0, 0, 0, 0.45);
+    --navbar-bg: rgba(23, 18, 37, 0.75);
 }
 
 /* Estilos de fuente y fondo para todo el cuerpo de la página */
@@ -60,12 +62,13 @@ body {
     background-attachment: fixed;
     color: var(--text);
     margin: 0;
-    padding: 0;
+    padding: 84px 0 24px; /* despeja la barra de navegación fija (Fase 4) */
     line-height: 1.6;
     display: flex; /* Usa flexbox para centrar el contenido */
     justify-content: center; /* Centra horizontalmente */
     align-items: center; /* Centra verticalmente */
     min-height: 100vh; /* Ocupa toda la altura de la ventana */
+    box-sizing: border-box;
     position: relative;
     overflow-x: hidden;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -229,13 +232,75 @@ button:active {
     box-shadow: 0 4px 12px var(--shadow);
 }
 
-.logout {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+/* --- Barra de navegación (mejora de UI/UX, Fase 4, fuera del plan) ---
+   Reemplaza el antiguo ".logout" ad-hoc por página: un único componente
+   (fragments/navbar.html) con marca, links de wayfinding y acciones,
+   fijo arriba de las 7 páginas Thymeleaf. */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.5rem;
+    background: var(--navbar-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 2px 20px var(--shadow);
+}
+
+.navbar a.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--heading);
+}
+
+.navbar a.brand:hover {
+    color: var(--heading);
+    text-decoration: none;
+}
+
+.brand-icon {
+    width: 28px;
+    height: 28px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.brand-name {
+    font-weight: 800;
+    font-size: 1.15rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navbar-actions {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.navbar-links a,
+.navbar-actions a {
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.navbar-links a:hover,
+.navbar-actions a:hover {
+    color: var(--accent);
 }
 
 .input-error {
@@ -342,6 +407,28 @@ button:active {
     0% { transform: scale(1) rotate(0deg); }
     50% { transform: scale(1.15) rotate(15deg); }
     100% { transform: scale(1) rotate(0deg); }
+}
+
+/* --- Suspenso antes de revelar (mejora de UI/UX, Fase 4, fuera del plan) ---
+   Para los algoritmos sin animación propia (todos salvo ruleta y dado). */
+.suspense-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    color: var(--label);
+}
+
+.suspense-icon {
+    font-size: 3rem;
+    line-height: 1;
+    animation: suspense-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes suspense-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.15); opacity: 1; }
 }
 
 /* --- Confeti (Fase 4.5) --- */
@@ -451,7 +538,7 @@ button:active {
 
 @media (max-width: 600px) {
     body {
-        padding: 0 5px;
+        padding: 72px 5px 16px;
         min-height: 100vh;
     }
     .container {
@@ -463,10 +550,18 @@ button:active {
     h1 {
         font-size: 1.3rem;
     }
-    .logout {
-        top: 10px;
-        right: 10px;
-        font-size: 0.95rem;
+    .navbar {
+        padding: 0.6rem 1rem;
+    }
+    .brand-name {
+        font-size: 1rem;
+    }
+    .navbar-links {
+        gap: 1rem;
+    }
+    .navbar-links a,
+    .navbar-actions a {
+        font-size: 0.85rem;
     }
     button {
         font-size: 1rem;
@@ -475,5 +570,11 @@ button:active {
     .wheel-outer {
         width: 180px;
         height: 180px;
+    }
+}
+
+@media (max-width: 420px) {
+    .navbar-links {
+        display: none;
     }
 }

@@ -85,6 +85,7 @@ public class AppController {
             Model model) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new Exceptions.ResourceNotFoundException("User not found"));
+        model.addAttribute("username", username);
         DecideCommand decideCommand = DecideCommand.builder()
                 .optionValues(opciones)
                 .algorithmType(AlgorithmType.fromCode(algoritmo))

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+  Barra de navegación persistente (mejora de UI/UX, Fase 4, fuera del plan
+  original), compartida por las 7 páginas Thymeleaf via th:replace. Antes
+  cada página resolvía a mano su propio "logout" + links de vuelta, sin
+  ningún elemento de marca ni ruta consistente entre páginas.
+
+  Parámetro `username`: pasar el nombre de usuario autenticado (String) para
+  mostrar los links "Decidir"/"Estadísticas" y "Cerrar Sesión"; pasar null
+  en páginas siempre públicas (login, registro, decisión compartida) para
+  mostrar solo la marca y el toggle de tema.
+-->
+<nav th:fragment="navbar(username)" class="navbar">
+    <a th:href="@{/}" class="brand">
+        <svg class="brand-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <rect x="5" y="5" width="38" height="38" rx="11" fill="none" stroke="currentColor" stroke-width="3.5"/>
+            <circle cx="16" cy="16" r="3.4" fill="currentColor"/>
+            <circle cx="32" cy="16" r="3.4" fill="currentColor"/>
+            <circle cx="24" cy="24" r="3.4" fill="currentColor"/>
+            <circle cx="16" cy="32" r="3.4" fill="currentColor"/>
+            <circle cx="32" cy="32" r="3.4" fill="currentColor"/>
+        </svg>
+        <span class="brand-name" th:text="#{brand.name}">Decididor</span>
+    </a>
+    <div class="navbar-links" th:if="${username}">
+        <a th:href="@{/form}" th:text="#{nav.decide}">Decidir</a>
+        <a th:href="@{/stats}" th:text="#{nav.stats}">Mis estadísticas</a>
+    </div>
+    <div class="navbar-actions">
+        <button id="dark-mode-toggle" type="button" class="theme-toggle" th:title="#{nav.toggleTheme}">🌙</button>
+        <a th:if="${username}" th:href="@{/logout}" th:text="#{nav.logout}">Cerrar Sesión</a>
+    </div>
+</nav>
+</body>
+</html>

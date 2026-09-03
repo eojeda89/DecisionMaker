@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function reveal() {
         if (resultContent) resultContent.classList.remove("hidden-until-reveal");
+        var suspense = document.getElementById("suspense-animation");
+        if (suspense) suspense.style.display = "none";
         launchConfetti();
         playRevealSound();
     }
@@ -17,7 +19,10 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (algorithmCode === "dice-roll") {
         animateDice(reveal);
     } else {
-        reveal();
+        // Mejora de UI/UX (Fase 4, fuera del plan): sin esta pausa, estos
+        // algoritmos revelaban el resultado de forma instantánea, sin la
+        // sensación de suspenso que sí tienen la ruleta y el dado.
+        setTimeout(reveal, 1300);
     }
 
     setUpShareLink();

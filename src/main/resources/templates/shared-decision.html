@@ -9,9 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-<div class="logout">
-    <button id="dark-mode-toggle" type="button" class="theme-toggle" th:title="#{nav.toggleTheme}">🌙</button>
-</div>
+<div th:replace="~{fragments/navbar :: navbar(${null})}"></div>
 <div class="container">
     <div th:if="${notFound}">
         <h1 th:text="#{shared.notFoundHeading}">Este link ya no existe</h1>

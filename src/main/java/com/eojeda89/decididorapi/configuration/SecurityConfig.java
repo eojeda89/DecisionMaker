@@ -40,7 +40,12 @@ public class SecurityConfig {
                         formLogin
                                 .loginPage("/login")
                                 .loginProcessingUrl("/authenticate")
-                                .defaultSuccessUrl("/", true)
+                                // Mejora de navegación (Fase 4): ir directo a
+                                // decidir en vez de a la pantalla de bienvenida,
+                                // que solo agregaba un clic extra al camino más
+                                // común. "/" sigue existiendo como home (link de
+                                // marca en la barra de navegación).
+                                .defaultSuccessUrl("/form", true)
                                 .permitAll()
                 )
                 .logout(LogoutConfigurer::permitAll)

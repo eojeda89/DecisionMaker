@@ -20,6 +20,38 @@ document.addEventListener("DOMContentLoaded", function () {
         reveal();
     }
 
+    setUpShareLink();
+
+    // Fase 4.3: el input trae la ruta relativa (armada por Thymeleaf); acá
+    // se completa con origin+puerto reales del navegador, que Spring no
+    // conoce de forma confiable detrás de un proxy (Railway).
+    function setUpShareLink() {
+        var shareInput = document.getElementById("share-link-input");
+        var copyBtn = document.getElementById("copy-share-link");
+        var copyFeedback = document.getElementById("copy-feedback");
+        if (!shareInput || !copyBtn) return;
+
+        shareInput.value = window.location.origin + shareInput.value;
+
+        copyBtn.addEventListener("click", function () {
+            shareInput.select();
+            shareInput.setSelectionRange(0, shareInput.value.length);
+
+            function showFeedback() {
+                if (!copyFeedback) return;
+                copyFeedback.hidden = false;
+                setTimeout(function () { copyFeedback.hidden = true; }, 2000);
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareInput.value).then(showFeedback, showFeedback);
+            } else {
+                document.execCommand("copy");
+                showFeedback();
+            }
+        });
+    }
+
     function animateWheel(onDone) {
         var wrap = document.getElementById("wheel-animation");
         var wheel = document.getElementById("wheel");

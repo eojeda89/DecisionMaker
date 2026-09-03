@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script th:src="@{/js/dark-mode.js}"></script>
+    <title th:text="#{shared.title}">Decisión compartida</title>
+    <link rel="stylesheet" th:href="@{/css/global.css}">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="logout">
+    <button id="dark-mode-toggle" type="button" class="theme-toggle" th:title="#{nav.toggleTheme}">🌙</button>
+</div>
+<div class="container">
+    <div th:if="${notFound}">
+        <h1 th:text="#{shared.notFoundHeading}">Este link ya no existe</h1>
+        <p th:text="#{shared.notFoundText}">El resultado que buscás no está disponible.</p>
+        <a href="/" th:text="#{shared.tryItLink}">Tomá tu propia decisión</a>
+    </div>
+
+    <div th:unless="${notFound}">
+        <h1 th:text="#{shared.heading}">Así decidió DecididorAPI</h1>
+        <p class="share-note" th:text="#{shared.viewedPublicly}">Este resultado es público: cualquiera con el link puede verlo.</p>
+
+        <p><span th:text="#{result.winningOption}">La opción ganadora es:</span> <strong><span th:text="${winningOptionValue}"></span></strong></p>
+        <p><span th:text="#{result.algorithmChosen}">El algoritmo elegido fue:</span> <span th:text="${algorithm}"></span></p>
+        <p><span th:text="#{result.algorithmDescription}">Descripción del algoritmo:</span> <span th:text="${description}"></span></p>
+
+        <div th:if="${steps != null and !steps.isEmpty()}">
+            <h3 th:text="#{result.narrativeHeading}">Cómo se decidió, paso a paso:</h3>
+            <ol>
+                <li th:each="step : ${steps}" th:text="${step.text}"></li>
+            </ol>
+        </div>
+
+        <h3 th:text="#{result.detailsHeading}">Detalles de la Decisión:</h3>
+        <ul>
+            <li th:each="detail : ${customDetails}">
+                <strong><span th:text="${detail.key}"></span></strong>: <span th:text="${detail.value}"></span>
+            </li>
+        </ul>
+
+        <a href="/" th:text="#{shared.tryItLink}">Tomá tu propia decisión</a>
+    </div>
+</div>
+</body>
+</html>

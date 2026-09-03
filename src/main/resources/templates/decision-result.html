@@ -55,6 +55,17 @@
                 <strong><span th:text="${detail.key}"></span></strong>: <span th:text="${detail.value}"></span>
             </li>
         </ul>
+
+        <!-- Fase 4.3: link público (GET /shared/{code}) para mandar el resultado por fuera de la app -->
+        <div id="share-box" class="share-box" th:if="${shareCode}">
+            <p th:text="#{result.shareLabel}">Compartí este resultado:</p>
+            <div class="share-row">
+                <input type="text" id="share-link-input" readonly
+                       th:value="@{/shared/{code}(code=${shareCode})}">
+                <button type="button" id="copy-share-link" class="share-copy-btn" th:text="#{result.copyLink}">Copiar link</button>
+            </div>
+            <span id="copy-feedback" class="copy-feedback" hidden th:text="#{result.linkCopied}">¡Copiado!</span>
+        </div>
     </div>
 
     <a href="/form" th:text="#{result.backLink}">Volver a Decidir</a> ·

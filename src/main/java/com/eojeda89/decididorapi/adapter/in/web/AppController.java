@@ -9,6 +9,7 @@ import com.eojeda89.decididorapi.application.port.out.UserRepository;
 import com.eojeda89.decididorapi.application.service.DecisionService;
 import com.eojeda89.decididorapi.common.exception.Exceptions;
 import com.eojeda89.decididorapi.domain.model.AlgorithmType;
+import com.eojeda89.decididorapi.domain.model.Decision;
 import com.eojeda89.decididorapi.domain.model.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -89,7 +91,26 @@ public class AppController {
                 .build();
         var result = decisionService.decide(decideCommand);
         Map<String, Object> resolvedDetails = algorithmDetailsLocalizer.localize(result.getAlgorithmDetails());
-        model.addAttribute("winningOptionValue", result.getWinningOptionValue());
+        populateResultModel(model, result.getWinningOptionValue(), resolvedDetails);
+
+        // Fase 4.1: la vista solo necesita saber qué algoritmo corrió para
+        // decidir si anima ruleta/dado antes de revelar el resultado.
+        model.addAttribute("algorithmCode", algoritmo);
+        if (AlgorithmType.FORTUNE_WHEEL.getCode().equals(algoritmo)) {
+            addWheelAnimationAttributes(model, opciones, resolvedDetails.get("winningAngleDegrees"));
+        }
+
+        // Fase 4.3: la decisión ya tiene shareCode (asignado en decide()),
+        // la vista arma el link público a partir de este código.
+        model.addAttribute("shareCode", result.getShareCode());
+
+        return "decision-result";
+    }
+
+    // Atributos comunes a decision-result.html (recién decidido) y
+    // shared-decision.html (Fase 4.3, consultado luego vía link público).
+    private void populateResultModel(Model model, String winningOptionValue, Map<String, Object> resolvedDetails) {
+        model.addAttribute("winningOptionValue", winningOptionValue);
         model.addAttribute("algorithm", resolvedDetails.get("algorithm"));
         model.addAttribute("description", resolvedDetails.get("description"));
         model.addAttribute("steps", resolvedDetails.get("steps"));
@@ -101,15 +122,6 @@ public class AppController {
                         Map.Entry::getValue
                 ));
         model.addAttribute("customDetails", customDetails);
-
-        // Fase 4.1: la vista solo necesita saber qué algoritmo corrió para
-        // decidir si anima ruleta/dado antes de revelar el resultado.
-        model.addAttribute("algorithmCode", algoritmo);
-        if (AlgorithmType.FORTUNE_WHEEL.getCode().equals(algoritmo)) {
-            addWheelAnimationAttributes(model, opciones, resolvedDetails.get("winningAngleDegrees"));
-        }
-
-        return "decision-result";
     }
 
     // Arma el conic-gradient (un gajo por opción, mismo orden que el índice
@@ -183,6 +195,22 @@ public class AppController {
         model.addAttribute("topWinningOptions", topWinningOptions);
 
         return "stats";
+    }
+
+    // Fase 4.3: página pública (sin login, ver SecurityConfig) para el link
+    // que "Compartir resultado" arma en decision-result.html. La API
+    // equivalente (GET /api/decisions/shared/{code}) ya existía desde la
+    // Fase 3.3; esto solo le agrega una vista Thymeleaf.
+    @GetMapping("/shared/{shareCode}")
+    public String sharedDecision(@PathVariable String shareCode, Model model) {
+        try {
+            Decision decision = decisionService.getByShareCode(shareCode);
+            Map<String, Object> resolvedDetails = algorithmDetailsLocalizer.localize(decision.getAlgorithmDetails());
+            populateResultModel(model, decision.getWinningOptionValue(), resolvedDetails);
+        } catch (Exceptions.ResourceNotFoundException e) {
+            model.addAttribute("notFound", true);
+        }
+        return "shared-decision";
     }
 
     @GetMapping("/register")

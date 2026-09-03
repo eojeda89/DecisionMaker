@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <script th:src="@{/js/dark-mode.js}"></script>
-    <title th:text="#{decide.title}">Decididor 2.0</title>
+    <title th:text="#{daily.title}">Decisión del día</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,9 +11,9 @@
 <body>
 <div th:replace="~{fragments/navbar :: navbar(${username})}"></div>
 <div class="container">
-    <h1 th:text="#{decide.heading}">Decididor 2.0</h1>
-    <p th:text="#{decide.welcome}">¡Bienvenido al Decididor 2.0! Aquí puedes tomar decisiones de manera divertida y aleatoria.</p>
-    <form action="/decide" method="post">
+    <h1 th:text="#{daily.heading}">Decisión del día</h1>
+    <p th:text="#{daily.intro}">Resultado fijo para hoy: repetir esta misma lista de opciones el mismo día siempre da la misma respuesta. No queda guardada en el historial.</p>
+    <form action="/decide/daily" method="post">
 
         <div id="container-options">
             <h2 th:text="#{decide.optionsHeading}">Deja que el destino decida por tí.</h2>
@@ -31,27 +31,9 @@
             <button type="button" id="add-option" th:text="#{decide.addOption}">Agregar otra opción</button>
         </div>
 
-        <div>
-            <label for="algorithm" th:text="#{decide.algorithmLabel}">Elige un Algoritmo:</label>
-            <select id="algorithm" name="algorithm">
-                <!-- Iteramos sobre la lista de algoritmos -->
-                <option th:each="algorithm : ${algorithms}"
-                        th:value="${algorithm.code}"
-                        th:text="${algorithm.uiName}">
-                </option>
-            </select>
-        </div>
-
-        <button type="submit" th:text="#{decide.submit}">¡Decidir!</button>
+        <button type="submit" th:text="#{daily.submit}">Ver la decisión de hoy</button>
     </form>
-
-    <div class="other-ways">
-        <p th:text="#{decide.otherWaysHeading}">Otras formas de decidir:</p>
-        <a th:href="@{/best-of-n}" th:text="#{decide.bestOfNLink}">Mejor de N rondas</a> ·
-        <a th:href="@{/daily}" th:text="#{decide.dailyLink}">Decisión del día</a>
-    </div>
 </div>
-<!-- Enlace al archivo de script externo -->
 <script th:src="@{/js/script-decision-option.js}"></script>
 </body>
 </html>

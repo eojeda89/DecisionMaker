@@ -536,6 +536,42 @@ button:active {
     margin-bottom: 1.5rem;
 }
 
+/* --- Links a "mejor de N" / "decisión del día" (mejora de UI/UX) --- */
+.other-ways {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.other-ways p {
+    color: var(--label);
+    margin: 0 0 0.5rem;
+}
+
+/* --- Checkboxes de pool de algoritmos (best-of-n-form.html) --- */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    accent-color: var(--accent);
+}
+
 @media (max-width: 600px) {
     body {
         padding: 72px 5px 16px;

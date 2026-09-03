@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <script th:src="@{/js/dark-mode.js}"></script>
-    <title th:text="#{decide.title}">Decididor 2.0</title>
+    <title th:text="#{bestOfN.title}">Mejor de N</title>
     <link rel="stylesheet" th:href="@{/css/global.css}">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,9 +11,9 @@
 <body>
 <div th:replace="~{fragments/navbar :: navbar(${username})}"></div>
 <div class="container">
-    <h1 th:text="#{decide.heading}">Decididor 2.0</h1>
-    <p th:text="#{decide.welcome}">¡Bienvenido al Decididor 2.0! Aquí puedes tomar decisiones de manera divertida y aleatoria.</p>
-    <form action="/decide" method="post">
+    <h1 th:text="#{bestOfN.heading}">Mejor de N</h1>
+    <p th:text="#{bestOfN.intro}">Se corren varias rondas independientes con un algoritmo al azar en cada una; gana la opción con más rondas ganadas.</p>
+    <form action="/decide/best-of-n" method="post">
 
         <div id="container-options">
             <h2 th:text="#{decide.optionsHeading}">Deja que el destino decida por tí.</h2>
@@ -32,26 +32,27 @@
         </div>
 
         <div>
-            <label for="algorithm" th:text="#{decide.algorithmLabel}">Elige un Algoritmo:</label>
-            <select id="algorithm" name="algorithm">
-                <!-- Iteramos sobre la lista de algoritmos -->
-                <option th:each="algorithm : ${algorithms}"
-                        th:value="${algorithm.code}"
-                        th:text="${algorithm.uiName}">
-                </option>
+            <label for="rounds" th:text="#{bestOfN.roundsLabel}">Cantidad de rondas:</label>
+            <select id="rounds" name="rounds">
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="7">7</option>
             </select>
         </div>
 
-        <button type="submit" th:text="#{decide.submit}">¡Decidir!</button>
-    </form>
+        <div>
+            <label th:text="#{bestOfN.algorithmsLabel}">Restringir el sorteo a estos algoritmos (opcional; si no se marca ninguno, se usan todos):</label>
+            <div class="checkbox-group">
+                <label class="checkbox-label" th:each="algorithm : ${algorithms}">
+                    <input type="checkbox" name="algorithms" th:value="${algorithm.code}">
+                    <span th:text="${algorithm.uiName}"></span>
+                </label>
+            </div>
+        </div>
 
-    <div class="other-ways">
-        <p th:text="#{decide.otherWaysHeading}">Otras formas de decidir:</p>
-        <a th:href="@{/best-of-n}" th:text="#{decide.bestOfNLink}">Mejor de N rondas</a> ·
-        <a th:href="@{/daily}" th:text="#{decide.dailyLink}">Decisión del día</a>
-    </div>
+        <button type="submit" th:text="#{bestOfN.submit}">¡Correr las rondas!</button>
+    </form>
 </div>
-<!-- Enlace al archivo de script externo -->
 <script th:src="@{/js/script-decision-option.js}"></script>
 </body>
 </html>

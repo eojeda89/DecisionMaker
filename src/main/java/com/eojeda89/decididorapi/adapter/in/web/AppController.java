@@ -1,9 +1,13 @@
 package com.eojeda89.decididorapi.adapter.in.web;
 
+import com.eojeda89.decididorapi.application.port.in.GetDailyDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.GetUserStatsUseCase;
+import com.eojeda89.decididorapi.application.port.in.MakeBestOfNDecisionUseCase;
 import com.eojeda89.decididorapi.application.port.in.RegisterUserUseCase;
+import com.eojeda89.decididorapi.application.port.in.command.BestOfNCommand;
 import com.eojeda89.decididorapi.application.port.in.command.DecideCommand;
 import com.eojeda89.decididorapi.application.port.in.command.RegisterUserCommand;
+import com.eojeda89.decididorapi.application.port.in.result.DecisionResult;
 import com.eojeda89.decididorapi.application.port.in.result.UserStatsResult;
 import com.eojeda89.decididorapi.application.port.out.UserRepository;
 import com.eojeda89.decididorapi.application.service.DecisionService;
@@ -43,6 +47,8 @@ public class AppController {
     private final RegisterUserUseCase registerUserUseCase;
     private final AlgorithmDetailsLocalizer algorithmDetailsLocalizer;
     private final GetUserStatsUseCase getUserStatsUseCase;
+    private final MakeBestOfNDecisionUseCase makeBestOfNDecisionUseCase;
+    private final GetDailyDecisionUseCase getDailyDecisionUseCase;
 
     @GetMapping("/login")
     public String login() {
@@ -68,14 +74,18 @@ public class AppController {
         if (authentication != null && authentication.isAuthenticated()) {
             model.addAttribute("username", authentication.getName());
         }
-        // BEST_OF_N y DAILY no son un DecisionAlgorithm de un solo tiro: no
-        // encajan en este dropdown (ver /api/decisions/best-of-n y
-        // /api/decisions/daily para esas mecánicas).
-        model.addAttribute("algorithms", java.util.Arrays.stream(AlgorithmType.values())
-                .filter(type -> type != AlgorithmType.BEST_OF_N && type != AlgorithmType.DAILY)
-                .toList());
+        model.addAttribute("algorithms", singleShotAlgorithms());
 
         return "decision-form";
+    }
+
+    // BEST_OF_N y DAILY no son un DecisionAlgorithm de un solo tiro: no
+    // encajan en el dropdown de un solo algoritmo de /form y /best-of-n
+    // (best-of-n) los usa como lista de checkboxes en cambio.
+    private List<AlgorithmType> singleShotAlgorithms() {
+        return java.util.Arrays.stream(AlgorithmType.values())
+                .filter(type -> type != AlgorithmType.BEST_OF_N && type != AlgorithmType.DAILY)
+                .toList();
     }
 
     @PostMapping("/decide")
@@ -104,6 +114,78 @@ public class AppController {
 
         // Fase 4.3: la decisión ya tiene shareCode (asignado en decide()),
         // la vista arma el link público a partir de este código.
+        model.addAttribute("shareCode", result.getShareCode());
+
+        return "decision-result";
+    }
+
+    // Mejor de N (Fase 3.2) no tenía vista web: solo existía vía
+    // POST /api/decisions/best-of-n. La lógica ya vivía en
+    // MakeBestOfNDecisionUseCase; esto solo le agrega un formulario propio
+    // (rondas + pool opcional de algoritmos) porque no encaja en el form de
+    // "un solo algoritmo" de /form. Reusa decision-result.html para mostrar
+    // el resultado, igual que /decide.
+    @GetMapping("/best-of-n")
+    public String bestOfNForm(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            model.addAttribute("username", authentication.getName());
+        }
+        model.addAttribute("algorithms", singleShotAlgorithms());
+        return "best-of-n-form";
+    }
+
+    @PostMapping("/decide/best-of-n")
+    public String makeBestOfNDecision(
+            @RequestParam("options") List<@NotBlank String> opciones,
+            @RequestParam("rounds") int rounds,
+            @RequestParam(value = "algorithms", required = false) List<String> algoritmos,
+            Model model) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new Exceptions.ResourceNotFoundException("User not found"));
+        model.addAttribute("username", username);
+
+        List<AlgorithmType> pool = (algoritmos == null || algoritmos.isEmpty())
+                ? null
+                : algoritmos.stream().map(AlgorithmType::fromCode).toList();
+        BestOfNCommand command = BestOfNCommand.builder()
+                .userId(user.getId())
+                .rounds(rounds)
+                .optionValues(opciones)
+                .algorithmPool(pool)
+                .build();
+        DecisionResult result = makeBestOfNDecisionUseCase.decide(command);
+        Map<String, Object> resolvedDetails = algorithmDetailsLocalizer.localize(result.getAlgorithmDetails());
+        populateResultModel(model, result.getWinningOptionValue(), resolvedDetails);
+        model.addAttribute("algorithmCode", AlgorithmType.BEST_OF_N.getCode());
+        model.addAttribute("shareCode", result.getShareCode());
+
+        return "decision-result";
+    }
+
+    // "Decisión del día" (Fase 3.5) tampoco tenía vista web, mismo motivo:
+    // no elige un algoritmo (es determinística por fecha+usuario+opciones),
+    // así que no encaja en /form. No se persiste, por lo que shareCode viene
+    // null -- decision-result.html ya oculta la caja de compartir en ese caso.
+    @GetMapping("/daily")
+    public String dailyForm(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            model.addAttribute("username", authentication.getName());
+        }
+        return "daily-form";
+    }
+
+    @PostMapping("/decide/daily")
+    public String makeDailyDecision(@RequestParam("options") List<@NotBlank String> opciones, Model model) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new Exceptions.ResourceNotFoundException("User not found"));
+        model.addAttribute("username", username);
+
+        DecisionResult result = getDailyDecisionUseCase.getDaily(user.getId(), opciones);
+        Map<String, Object> resolvedDetails = algorithmDetailsLocalizer.localize(result.getAlgorithmDetails());
+        populateResultModel(model, result.getWinningOptionValue(), resolvedDetails);
+        model.addAttribute("algorithmCode", AlgorithmType.DAILY.getCode());
         model.addAttribute("shareCode", result.getShareCode());
 
         return "decision-result";

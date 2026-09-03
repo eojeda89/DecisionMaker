@@ -1,79 +1,155 @@
 /* src/main/resources/static/css/global.css */
 
+/* Rebranding (Fase 4, fuera del plan original): paleta "vibrante y
+   juguetón" — violeta/coral con acentos ámbar/cian — más tipografía
+   Poppins. @import en vez de <link> en cada template: un solo punto de
+   cambio, a costa de un pequeño golpe de performance por el bloqueo de
+   render (aceptable para un proyecto de este tamaño). */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
 /* Fase 4.4: paleta como variables CSS. El tema por defecto (claro) vive en
    :root; el oscuro pisa esas variables bajo [data-theme="dark"], que
    js/dark-mode.js setea en <html> antes de que se pinte la página (según
    preferencia guardada o prefers-color-scheme del sistema). */
 :root {
-    --bg: #f0f2f5;
+    --bg: #f3f0fb;
+    --bg-grad-1: #8b5cf6;
+    --bg-grad-2: #fb7185;
+    --blob-1: #fbbf24;
+    --blob-2: #22d3ee;
     --surface: #fff;
-    --text: #333;
-    --heading: #1a1a2e;
-    --link: #007bff;
-    --link-hover: #0056b3;
-    --label: #555;
-    --border: #ccc;
-    --focus-ring: rgba(0, 123, 255, 0.25);
-    --accent: #007bff;
-    --accent-hover: #0056b3;
-    --shadow: rgba(0, 0, 0, 0.1);
+    --text: #362f47;
+    --heading: #221c35;
+    --link: #7c3aed;
+    --link-hover: #6d28d9;
+    --label: #6b7280;
+    --border: #e6e1f2;
+    --focus-ring: rgba(124, 58, 237, 0.25);
+    --accent: #7c3aed;
+    --accent-hover: #6d28d9;
+    --accent-gradient: linear-gradient(135deg, #8b5cf6, #fb7185);
+    --accent-gradient-hover: linear-gradient(135deg, #7c3aed, #f43f5e);
+    --shadow: rgba(124, 58, 237, 0.18);
 }
 
 [data-theme="dark"] {
-    --bg: #121212;
-    --surface: #1e1e2e;
-    --text: #e0e0e0;
+    --bg: #171225;
+    --bg-grad-1: #1e1033;
+    --bg-grad-2: #3b1230;
+    --blob-1: #fbbf24;
+    --blob-2: #22d3ee;
+    --surface: #211a35;
+    --text: #e7e1fb;
     --heading: #ffffff;
-    --link: #4dabf7;
-    --link-hover: #74c0fc;
-    --label: #b0b0c0;
-    --border: #444;
-    --focus-ring: rgba(77, 171, 247, 0.35);
-    --accent: #4dabf7;
-    --accent-hover: #339af0;
-    --shadow: rgba(0, 0, 0, 0.5);
+    --link: #c4b5fd;
+    --link-hover: #ddd6fe;
+    --label: #b6acd6;
+    --border: #4a3d6b;
+    --focus-ring: rgba(167, 139, 250, 0.35);
+    --accent: #a78bfa;
+    --accent-hover: #c4b5fd;
+    --accent-gradient: linear-gradient(135deg, #a78bfa, #fb7185);
+    --accent-gradient-hover: linear-gradient(135deg, #c4b5fd, #fda4af);
+    --shadow: rgba(0, 0, 0, 0.45);
 }
 
 /* Estilos de fuente y fondo para todo el cuerpo de la página */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: var(--bg);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, var(--bg-grad-1), var(--bg-grad-2));
+    background-attachment: fixed;
     color: var(--text);
     margin: 0;
     padding: 0;
     line-height: 1.6;
-    display: flex; /* Nuevo: Usa flexbox para centrar el contenido */
-    justify-content: center; /* Nuevo: Centra horizontalmente */
-    align-items: center; /* Nuevo: Centra verticalmente */
-    min-height: 100vh; /* Nuevo: Ocupa toda la altura de la ventana */
+    display: flex; /* Usa flexbox para centrar el contenido */
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    min-height: 100vh; /* Ocupa toda la altura de la ventana */
+    position: relative;
+    overflow-x: hidden;
     transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Manchas de color difuminadas de fondo, puramente decorativas — sin tocar
+   el markup de cada template, ya que todas comparten este mismo body. */
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+body::before {
+    width: 420px;
+    height: 420px;
+    background: var(--blob-1);
+    top: -140px;
+    left: -120px;
+}
+
+body::after {
+    width: 480px;
+    height: 480px;
+    background: var(--blob-2);
+    bottom: -160px;
+    right: -140px;
+}
+
+[data-theme="dark"] body::before,
+[data-theme="dark"] body::after {
+    opacity: 0.28;
 }
 
 /* Contenedor central para las páginas principales */
 .container {
     background-color: var(--surface);
     padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px var(--shadow);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px -12px var(--shadow), 0 4px 12px rgba(0, 0, 0, 0.06);
     width: 100%;
     max-width: 500px;
     box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Franja de acento en degradé arriba de cada tarjeta — el detalle de marca
+   que se repite en todas las páginas sin duplicar markup. */
+.container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    border-radius: inherit;
+    background: var(--accent-gradient);
 }
 
 /* Estilos para encabezados */
 h1 {
     color: var(--heading);
+    font-weight: 800;
     font-size: 2rem;
     margin-top: 0;
     margin-bottom: 2rem;
     text-align: center;
+    letter-spacing: -0.02em;
 }
 
 /* Estilos para enlaces (a) */
 a {
     color: var(--link);
     text-decoration: none;
+    font-weight: 600;
     transition: color 0.3s ease;
 }
 
@@ -107,10 +183,11 @@ input[type="password"],
 input[type="email"],
 select {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
     font-size: 1rem;
+    font-family: inherit;
     box-sizing: border-box;
     background-color: var(--surface);
     color: var(--text);
@@ -123,24 +200,33 @@ input[type="email"]:focus,
 select:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--focus-ring);
+    box-shadow: 0 0 0 4px var(--focus-ring);
 }
 
 button {
-    background-color: var(--accent);
+    background: var(--accent-gradient);
     color: white;
-    padding: 0.75rem 1.5rem;
+    padding: 0.85rem 1.5rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: bold;
-    transition: background-color 0.3s;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-family: inherit;
+    box-shadow: 0 8px 20px var(--shadow);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.3s ease;
     width: 100%;
 }
 
 button:hover {
-    background-color: var(--accent-hover);
+    background: var(--accent-gradient-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px var(--shadow);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px var(--shadow);
 }
 
 .logout {
@@ -158,19 +244,26 @@ button:hover {
 
 /* Fase 4.4: botón de modo oscuro (icono-only, ver js/dark-mode.js) */
 .theme-toggle {
-    width: auto;
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
     color: var(--text);
     font-size: 1.1rem;
     line-height: 1;
-    padding: 0.4rem 0.6rem;
+    padding: 0;
     cursor: pointer;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: transform 0.15s ease, background-color 0.2s ease;
 }
 
 .theme-toggle:hover {
     background-color: var(--bg);
+    transform: translateY(-1px);
 }
 
 /* Fase 4.1: se aplica a la sección de resultado mientras la animación de
@@ -315,7 +408,7 @@ button:hover {
 }
 
 .stats-bar-fill {
-    background-color: var(--accent);
+    background: var(--accent-gradient);
     height: 100%;
     border-radius: 6px;
 }

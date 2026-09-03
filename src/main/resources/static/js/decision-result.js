@@ -102,7 +102,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function launchConfetti() {
-        var colors = ["#f94144", "#f3722c", "#f9c74f", "#90be6d", "#577590", "#277da1"];
+        // Paleta alineada con el rebranding de Fase 4 (ver global.css).
+        var colors = ["#8b5cf6", "#fb7185", "#fbbf24", "#34d399", "#60a5fa", "#f472b6"];
         var container = document.createElement("div");
         container.className = "confetti-container";
         document.body.appendChild(container);

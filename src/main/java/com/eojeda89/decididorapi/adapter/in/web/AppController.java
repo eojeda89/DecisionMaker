@@ -33,9 +33,10 @@ import java.util.stream.Collectors;
 public class AppController {
 
     // Fase 4.1: paleta cíclica para dibujar los gajos de la ruleta (no tiene
-    // relación con las opciones en sí, solo variedad visual).
+    // relación con las opciones en sí, solo variedad visual). Alineada con
+    // la paleta de marca del rebranding de Fase 4.
     private static final List<String> WHEEL_COLORS = List.of(
-            "#ef476f", "#ffd166", "#06d6a0", "#118ab2", "#073b4c", "#f78c6b");
+            "#8b5cf6", "#fb7185", "#fbbf24", "#34d399", "#60a5fa", "#f472b6");
 
     private final DecisionService decisionService;
     private final UserRepository userRepository;

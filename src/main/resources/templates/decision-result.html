@@ -58,7 +58,7 @@
 
         <!-- Fase 4.3: link público (GET /shared/{code}) para mandar el resultado por fuera de la app -->
         <div id="share-box" class="share-box" th:if="${shareCode}">
-            <p th:text="#{result.shareLabel}">Compartí este resultado:</p>
+            <p th:text="#{result.shareLabel}">Compartir este resultado:</p>
             <div class="share-row">
                 <input type="text" id="share-link-input" readonly
                        th:value="@{/shared/{code}(code=${shareCode})}">

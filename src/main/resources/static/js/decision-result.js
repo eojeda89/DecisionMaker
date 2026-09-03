@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setUpShareLink();
 
-    // Fase 4.3: el input trae la ruta relativa (armada por Thymeleaf); acá
+    // Fase 4.3: el input trae la ruta relativa (armada por Thymeleaf); aquí
     // se completa con origin+puerto reales del navegador, que Spring no
     // conoce de forma confiable detrás de un proxy (Railway).
     function setUpShareLink() {

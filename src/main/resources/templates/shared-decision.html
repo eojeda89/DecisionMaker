@@ -15,8 +15,8 @@
 <div class="container">
     <div th:if="${notFound}">
         <h1 th:text="#{shared.notFoundHeading}">Este link ya no existe</h1>
-        <p th:text="#{shared.notFoundText}">El resultado que buscás no está disponible.</p>
-        <a href="/" th:text="#{shared.tryItLink}">Tomá tu propia decisión</a>
+        <p th:text="#{shared.notFoundText}">El resultado buscado no está disponible.</p>
+        <a href="/" th:text="#{shared.tryItLink}">Tomar tu propia decisión</a>
     </div>
 
     <div th:unless="${notFound}">
@@ -41,7 +41,7 @@
             </li>
         </ul>
 
-        <a href="/" th:text="#{shared.tryItLink}">Tomá tu propia decisión</a>
+        <a href="/" th:text="#{shared.tryItLink}">Tomar tu propia decisión</a>
     </div>
 </div>
 </body>
